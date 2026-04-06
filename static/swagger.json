@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "DG Toolkit API",
+    "version": "1.0.0",
+    "description": "KPMG Tunisia Data Governance Maturity Assessment Toolkit"
+  },
+  "servers": [
+    { "url": "http://127.0.0.1:5000/api" }
+  ],
+  "paths": {
+    "/organizations": {
+      "get": {
+        "summary": "List all organizations",
+        "tags": ["Organizations"],
+        "responses": {
+          "200": { "description": "List of organizations" }
+        }
+      },
+      "post": {
+        "summary": "Create a new organization",
+        "tags": ["Organizations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "industry"],
+                "properties": {
+                  "name":      { "type": "string" },
+                  "industry":  { "type": "string", "enum": ["Banking","Insurance","Telecom","Energy","Retail","Healthcare","Public Sector","Other"] },
+                  "country":   { "type": "string" },
+                  "size_band": { "type": "string", "enum": ["SME","Large","Enterprise"] },
+                  "notes":     { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Organization created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/organizations/{org_id}": {
+      "get": {
+        "summary": "Get organization by ID",
+        "tags": ["Organizations"],
+        "parameters": [
+          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Organization found" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Soft delete an organization",
+        "tags": ["Organizations"],
+        "parameters": [
+          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Organization deleted" },
+          "404": { "description": "Not found" }
+        }
+      }
+    }
+  }
+}
