@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 import sys
 sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
+sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app')
 from connection import get_connection, get_cursor
 from datetime import datetime, timezone
 
@@ -119,7 +120,7 @@ def save_kpi_answers(assessment_id, kpi_id):
                 # Always save Q1 as submitted
                 rows_to_save.append({
                     'question_id':     qid,
-                    'selected_option': q1_option,
+                    'selected_option': q1_option if q1_option != 'N.A' else None,
                     'is_na':           q1_is_na,
                     'is_hidden':       False,
                     'raw_value':       OPTION_SCORES[q1_option],
@@ -218,7 +219,6 @@ def submit_assessment(assessment_id):
         """, [assessment_id])
         is_complete = cur.fetchone()['complete']
         if not is_complete:
-            # Find which KPIs still have unanswered questions
             cur.execute("""
                 SELECT q.kpi_id, COUNT(*) AS unanswered
                 FROM dg_toolkit.questions q
@@ -234,18 +234,14 @@ def submit_assessment(assessment_id):
                 'error': 'Not all questions are answered',
                 'incomplete_kpis': [dict(r) for r in incomplete]
             }), 400
-
         # Move to submitted
         cur.execute("""
             UPDATE dg_toolkit.assessments
             SET status = 'submitted',
                 submitted_at = NOW()
             WHERE id = %s
-            RETURNING id, status, submitted_at
         """, [assessment_id])
-        row = cur.fetchone()
         conn.commit()
-        return jsonify(dict(row)), 200
 
     except Exception as e:
         conn.rollback()
@@ -253,3 +249,12 @@ def submit_assessment(assessment_id):
     finally:
         cur.close()
         conn.close()
+
+    # Run scoring engine — uses its own connection, outside the submit transaction
+    from app.services.scoring import run_scoring
+    scoring_result = run_scoring(assessment_id)
+    return jsonify({
+        'message': 'Assessment submitted and scored',
+        'assessment_id': assessment_id,
+        **scoring_result
+    }), 200
