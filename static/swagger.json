@@ -308,6 +308,68 @@
           "409": { "description": "Already started" }
         }
       }
+    },
+"/assessments/{assessment_id}/answers": {
+  "get": {
+    "summary": "Get all answers for an assessment",
+    "tags": ["Answers"],
+    "parameters": [
+      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+    ],
+    "responses": { "200": { "description": "List of answers" } }
+  }
+},
+"/assessments/{assessment_id}/answers/kpi/{kpi_id}": {
+  "post": {
+    "summary": "Save answers for one KPI in bulk",
+    "tags": ["Answers"],
+    "parameters": [
+      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+      { "name": "kpi_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["answers"],
+            "properties": {
+              "answers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question_id":     { "type": "integer" },
+                    "selected_option": { "type": "string", "enum": ["Fully","Mostly","Partially","Slightly","Not","N.A"] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": { "description": "Answers saved" },
+      "400": { "description": "Validation error" },
+      "409": { "description": "Assessment not in progress" }
     }
+  }
+},
+"/assessments/{assessment_id}/submit": {
+  "post": {
+    "summary": "Submit assessment after all questions answered",
+    "tags": ["Answers"],
+    "parameters": [
+      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+    ],
+    "responses": {
+      "200": { "description": "Assessment submitted" },
+      "400": { "description": "Incomplete answers" },
+      "409": { "description": "Not in progress" }
+    }
+  }
+}
   }
 }
