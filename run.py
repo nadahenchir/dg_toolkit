@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.routes.organizations import organizations_bp
 from app.routes.consultants import consultants_bp
-
+from app.routes.assessments import assessments_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +11,8 @@ CORS(app)
 # Routes
 app.register_blueprint(organizations_bp, url_prefix='/api')
 app.register_blueprint(consultants_bp, url_prefix='/api')
+app.register_blueprint(assessments_bp, url_prefix='/api')
+
 
 # Swagger UI
 SWAGGER_URL = '/docs'
