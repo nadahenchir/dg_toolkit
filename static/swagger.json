@@ -370,6 +370,27 @@
       "409": { "description": "Not in progress" }
     }
   }
+},
+"/api/assessments/{assessment_id}/scores": {
+  "get": {
+    "summary": "Get scores for a submitted assessment",
+    "tags": ["Scores"],
+    "parameters": [
+      {
+        "name": "assessment_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" },
+        "example": 1
+      }
+    ],
+    "responses": {
+      "200": { "description": "Scores returned successfully" },
+      "404": { "description": "Assessment not found" },
+      "409": { "description": "Scoring not yet complete" }
+    }
+  }
 }
+
   }
 }
