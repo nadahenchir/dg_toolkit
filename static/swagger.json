@@ -6,7 +6,9 @@
     "description": "KPMG Tunisia Data Governance Maturity Assessment Toolkit"
   },
   "servers": [
-    { "url": "http://127.0.0.1:5000/api" }
+    {
+      "url": "http://127.0.0.1:5000/api"
+    }
   ],
   "paths": {
     "/organizations": {
@@ -14,7 +16,9 @@
         "summary": "List all organizations",
         "tags": ["Organizations"],
         "responses": {
-          "200": { "description": "List of organizations" }
+          "200": {
+            "description": "List of organizations"
+          }
         }
       },
       "post": {
@@ -28,11 +32,26 @@
                 "type": "object",
                 "required": ["name", "industry"],
                 "properties": {
-                  "name":      { "type": "string" },
-                  "industry":  { "type": "string", "enum": ["Banking","Insurance","Telecom","Energy","Retail","Healthcare","Public Sector","Other"] },
-                  "country":   { "type": "string" },
-                  "size_band": { "type": "string", "enum": ["SME","Large","Enterprise"] },
-                  "notes":     { "type": "string" }
+                  "name": { "type": "string" },
+                  "industry": {
+                    "type": "string",
+                    "enum": [
+                      "Banking",
+                      "Insurance",
+                      "Telecom",
+                      "Energy",
+                      "Retail",
+                      "Healthcare",
+                      "Public Sector",
+                      "Other"
+                    ]
+                  },
+                  "country": { "type": "string" },
+                  "size_band": {
+                    "type": "string",
+                    "enum": ["SME", "Large", "Enterprise"]
+                  },
+                  "notes": { "type": "string" }
                 }
               }
             }
@@ -44,12 +63,18 @@
         }
       }
     },
+
     "/organizations/{org_id}": {
       "get": {
         "summary": "Get organization by ID",
         "tags": ["Organizations"],
         "parameters": [
-          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
         ],
         "responses": {
           "200": { "description": "Organization found" },
@@ -60,10 +85,86 @@
         "summary": "Soft delete an organization",
         "tags": ["Organizations"],
         "parameters": [
-          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "org_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
         ],
         "responses": {
           "200": { "description": "Organization deleted" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+
+    "/consultants": {
+      "get": {
+        "summary": "List all consultants",
+        "tags": ["Consultants"],
+        "responses": {
+          "200": {
+            "description": "List of consultants"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new consultant",
+        "tags": ["Consultants"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["full_name", "email"],
+                "properties": {
+                  "full_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "role": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Consultant created" },
+          "409": { "description": "Email already exists" }
+        }
+      }
+    },
+
+    "/consultants/{consultant_id}": {
+      "get": {
+        "summary": "Get consultant by ID",
+        "tags": ["Consultants"],
+        "parameters": [
+          {
+            "name": "consultant_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Consultant found" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a consultant",
+        "tags": ["Consultants"],
+        "parameters": [
+          {
+            "name": "consultant_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Consultant deleted" },
           "404": { "description": "Not found" }
         }
       }

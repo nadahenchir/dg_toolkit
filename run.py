@@ -2,12 +2,15 @@ from flask import Flask
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.routes.organizations import organizations_bp
+from app.routes.consultants import consultants_bp
+
 
 app = Flask(__name__)
 CORS(app)
 
 # Routes
 app.register_blueprint(organizations_bp, url_prefix='/api')
+app.register_blueprint(consultants_bp, url_prefix='/api')
 
 # Swagger UI
 SWAGGER_URL = '/docs'
