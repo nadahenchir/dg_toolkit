@@ -371,7 +371,7 @@
     }
   }
 },
-"/api/assessments/{assessment_id}/scores": {
+"/assessments/{assessment_id}/scores": {
   "get": {
     "summary": "Get scores for a submitted assessment",
     "tags": ["Scores"],
@@ -388,6 +388,44 @@
       "200": { "description": "Scores returned successfully" },
       "404": { "description": "Assessment not found" },
       "409": { "description": "Scoring not yet complete" }
+    }
+  }
+}, 
+"/assessments/{assessment_id}/recommendations": {
+  "get": {
+    "summary": "Get recommendations for a complete assessment",
+    "tags": ["Recommendations"],
+    "parameters": [
+      {
+        "name": "assessment_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" },
+        "example": 1
+      },
+      {
+        "name": "action_category",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "enum": ["Quick Win", "Strategic", "Fill In"] }
+      },
+      {
+        "name": "domain_id",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer" }
+      },
+      {
+        "name": "min_gap",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer" }
+      }
+    ],
+    "responses": {
+      "200": { "description": "Recommendations returned successfully" },
+      "404": { "description": "Assessment not found" },
+      "409": { "description": "Assessment not yet complete" }
     }
   }
 }

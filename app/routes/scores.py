@@ -17,7 +17,7 @@ scores_bp = Blueprint('scores', __name__)
 # Only available once scoring_status = 'done'.
 # ---------------------------------------------------------------------------
 
-@scores_bp.route('/api/assessments/<int:assessment_id>/scores', methods=['GET'])
+@scores_bp.route('/assessments/<int:assessment_id>/scores', methods=['GET'])
 def get_scores(assessment_id):
     conn = get_connection()
     cur  = get_cursor(conn)
