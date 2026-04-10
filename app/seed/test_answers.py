@@ -3,7 +3,7 @@ import random
 sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
 from connection import get_connection, get_cursor
 
-ASSESSMENT_ID = 1  # change if needed
+ASSESSMENT_ID = 2  # change if needed
 
 OPTIONS = ['Fully', 'Mostly', 'Partially', 'Slightly', 'Not']
 

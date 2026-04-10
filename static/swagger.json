@@ -16,9 +16,7 @@
         "summary": "List all organizations",
         "tags": ["Organizations"],
         "responses": {
-          "200": {
-            "description": "List of organizations"
-          }
+          "200": { "description": "List of organizations" }
         }
       },
       "post": {
@@ -32,26 +30,11 @@
                 "type": "object",
                 "required": ["name", "industry"],
                 "properties": {
-                  "name": { "type": "string" },
-                  "industry": {
-                    "type": "string",
-                    "enum": [
-                      "Banking",
-                      "Insurance",
-                      "Telecom",
-                      "Energy",
-                      "Retail",
-                      "Healthcare",
-                      "Public Sector",
-                      "Other"
-                    ]
-                  },
-                  "country": { "type": "string" },
-                  "size_band": {
-                    "type": "string",
-                    "enum": ["SME", "Large", "Enterprise"]
-                  },
-                  "notes": { "type": "string" }
+                  "name":      { "type": "string" },
+                  "industry":  { "type": "string", "enum": ["Banking","Insurance","Telecom","Energy","Retail","Healthcare","Public Sector","Other"] },
+                  "country":   { "type": "string" },
+                  "size_band": { "type": "string", "enum": ["SME","Large","Enterprise"] },
+                  "notes":     { "type": "string" }
                 }
               }
             }
@@ -69,12 +52,7 @@
         "summary": "Get organization by ID",
         "tags": ["Organizations"],
         "parameters": [
-          {
-            "name": "org_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Organization found" },
@@ -85,12 +63,7 @@
         "summary": "Soft delete an organization",
         "tags": ["Organizations"],
         "parameters": [
-          {
-            "name": "org_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "org_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Organization deleted" },
@@ -104,9 +77,7 @@
         "summary": "List all consultants",
         "tags": ["Consultants"],
         "responses": {
-          "200": {
-            "description": "List of consultants"
-          }
+          "200": { "description": "List of consultants" }
         }
       },
       "post": {
@@ -121,8 +92,8 @@
                 "required": ["full_name", "email"],
                 "properties": {
                   "full_name": { "type": "string" },
-                  "email": { "type": "string" },
-                  "role": { "type": "string" }
+                  "email":     { "type": "string" },
+                  "role":      { "type": "string" }
                 }
               }
             }
@@ -140,12 +111,7 @@
         "summary": "Get consultant by ID",
         "tags": ["Consultants"],
         "parameters": [
-          {
-            "name": "consultant_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "consultant_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Consultant found" },
@@ -156,12 +122,7 @@
         "summary": "Delete a consultant",
         "tags": ["Consultants"],
         "parameters": [
-          {
-            "name": "consultant_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "consultant_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Consultant deleted" },
@@ -190,11 +151,8 @@
                 "required": ["organization_id", "consultant_id"],
                 "properties": {
                   "organization_id": { "type": "integer" },
-                  "consultant_id": { "type": "integer" },
-                  "engagement_date": {
-                    "type": "string",
-                    "format": "date"
-                  }
+                  "consultant_id":   { "type": "integer" },
+                  "engagement_date": { "type": "string", "format": "date" }
                 }
               }
             }
@@ -202,9 +160,21 @@
         },
         "responses": {
           "201": { "description": "Assessment created" },
-          "404": {
-            "description": "Organization or consultant not found"
-          }
+          "404": { "description": "Organization or consultant not found" }
+        }
+      }
+    },
+
+    "/assessments/consultant/{consultant_id}": {
+      "get": {
+        "summary": "Get all assessments by consultant",
+        "tags": ["Assessments"],
+        "parameters": [
+          { "name": "consultant_id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "responses": {
+          "200": { "description": "Assessments returned successfully" },
+          "404": { "description": "Consultant not found" }
         }
       }
     },
@@ -214,12 +184,7 @@
         "summary": "Get assessment by ID",
         "tags": ["Assessments"],
         "parameters": [
-          {
-            "name": "assessment_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Assessment found" },
@@ -230,12 +195,7 @@
         "summary": "Soft delete an assessment",
         "tags": ["Assessments"],
         "parameters": [
-          {
-            "name": "assessment_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Assessment deleted" },
@@ -249,12 +209,7 @@
         "summary": "Set domain targets for an assessment",
         "tags": ["Assessments"],
         "parameters": [
-          {
-            "name": "assessment_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "requestBody": {
           "required": true,
@@ -269,12 +224,8 @@
                     "items": {
                       "type": "object",
                       "properties": {
-                        "domain_id": { "type": "integer" },
-                        "target_level": {
-                          "type": "integer",
-                          "minimum": 1,
-                          "maximum": 5
-                        }
+                        "domain_id":    { "type": "integer" },
+                        "target_level": { "type": "integer", "minimum": 1, "maximum": 5 }
                       }
                     }
                   }
@@ -295,12 +246,7 @@
         "summary": "Lock targets and start assessment",
         "tags": ["Assessments"],
         "parameters": [
-          {
-            "name": "assessment_id",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "integer" }
-          }
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
           "200": { "description": "Assessment started" },
@@ -309,126 +255,144 @@
         }
       }
     },
-"/assessments/{assessment_id}/answers": {
-  "get": {
-    "summary": "Get all answers for an assessment",
-    "tags": ["Answers"],
-    "parameters": [
-      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
-    ],
-    "responses": { "200": { "description": "List of answers" } }
-  }
-},
-"/assessments/{assessment_id}/answers/kpi/{kpi_id}": {
-  "post": {
-    "summary": "Save answers for one KPI in bulk",
-    "tags": ["Answers"],
-    "parameters": [
-      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } },
-      { "name": "kpi_id", "in": "path", "required": true, "schema": { "type": "integer" } }
-    ],
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": {
-            "type": "object",
-            "required": ["answers"],
-            "properties": {
-              "answers": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "question_id":     { "type": "integer" },
-                    "selected_option": { "type": "string", "enum": ["Fully","Mostly","Partially","Slightly","Not","N.A"] }
+
+    "/assessments/{assessment_id}/answers": {
+      "get": {
+        "summary": "Get all answers for an assessment",
+        "tags": ["Answers"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "List of answers" }
+        }
+      }
+    },
+
+    "/assessments/{assessment_id}/answers/kpi/{kpi_id}": {
+      "post": {
+        "summary": "Save answers for one KPI in bulk",
+        "tags": ["Answers"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "kpi_id",        "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["answers"],
+                "properties": {
+                  "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "question_id":     { "type": "integer" },
+                        "selected_option": { "type": "string", "enum": ["Fully","Mostly","Partially","Slightly","Not","N.A"] }
+                      }
+                    }
                   }
                 }
               }
             }
           }
+        },
+        "responses": {
+          "200": { "description": "Answers saved" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Assessment not in progress" }
         }
       }
     },
-    "responses": {
-      "200": { "description": "Answers saved" },
-      "400": { "description": "Validation error" },
-      "409": { "description": "Assessment not in progress" }
-    }
-  }
-},
-"/assessments/{assessment_id}/submit": {
-  "post": {
-    "summary": "Submit assessment after all questions answered",
-    "tags": ["Answers"],
-    "parameters": [
-      { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
-    ],
-    "responses": {
-      "200": { "description": "Assessment submitted" },
-      "400": { "description": "Incomplete answers" },
-      "409": { "description": "Not in progress" }
-    }
-  }
-},
-"/assessments/{assessment_id}/scores": {
-  "get": {
-    "summary": "Get scores for a submitted assessment",
-    "tags": ["Scores"],
-    "parameters": [
-      {
-        "name": "assessment_id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "integer" },
-        "example": 1
+
+    "/assessments/{assessment_id}/submit": {
+      "post": {
+        "summary": "Submit assessment and trigger scoring pipeline",
+        "tags": ["Answers"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Assessment submitted and scored" },
+          "207": { "description": "Submitted but scoring failed" },
+          "400": { "description": "Incomplete answers" },
+          "409": { "description": "Already submitted" }
+        }
       }
-    ],
-    "responses": {
-      "200": { "description": "Scores returned successfully" },
-      "404": { "description": "Assessment not found" },
-      "409": { "description": "Scoring not yet complete" }
-    }
-  }
-}, 
-"/assessments/{assessment_id}/recommendations": {
-  "get": {
-    "summary": "Get recommendations for a complete assessment",
-    "tags": ["Recommendations"],
-    "parameters": [
-      {
-        "name": "assessment_id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "integer" },
-        "example": 1
-      },
-      {
-        "name": "action_category",
-        "in": "query",
-        "required": false,
-        "schema": { "type": "string", "enum": ["Quick Win", "Strategic", "Fill In"] }
-      },
-      {
-        "name": "domain_id",
-        "in": "query",
-        "required": false,
-        "schema": { "type": "integer" }
-      },
-      {
-        "name": "min_gap",
-        "in": "query",
-        "required": false,
-        "schema": { "type": "integer" }
+    },
+
+    "/assessments/{assessment_id}/scores": {
+      "get": {
+        "summary": "Get scores for a submitted assessment",
+        "tags": ["Scores"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" }, "example": 1 }
+        ],
+        "responses": {
+          "200": { "description": "Scores returned successfully" },
+          "404": { "description": "Assessment not found" },
+          "409": { "description": "Scoring not yet complete" }
+        }
       }
-    ],
-    "responses": {
-      "200": { "description": "Recommendations returned successfully" },
-      "404": { "description": "Assessment not found" },
-      "409": { "description": "Assessment not yet complete" }
+    },
+
+    "/assessments/{assessment_id}/recommendations": {
+      "get": {
+        "summary": "Get recommendations for a complete assessment",
+        "tags": ["Recommendations"],
+        "parameters": [
+          { "name": "assessment_id",  "in": "path",  "required": true,  "schema": { "type": "integer" }, "example": 1 },
+          { "name": "domain_id",      "in": "query", "required": false, "schema": { "type": "integer" } },
+          { "name": "action_category","in": "query", "required": false, "schema": { "type": "string", "enum": ["Quick Win","Strategic","Fill In"] } },
+          { "name": "impact",         "in": "query", "required": false, "schema": { "type": "string", "enum": ["High","Medium","Low"] } },
+          { "name": "effort",         "in": "query", "required": false, "schema": { "type": "string", "enum": ["High","Medium","Low"] } },
+          { "name": "maturity_level", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 5 } },
+          { "name": "kpi_id",         "in": "query", "required": false, "schema": { "type": "integer" } },
+          { "name": "min_gap",        "in": "query", "required": false, "schema": { "type": "integer" } },
+          { "name": "sort_by",        "in": "query", "required": false, "schema": { "type": "string", "enum": ["priority_score","gap","maturity_level","impact","effort"], "default": "priority_score" } },
+          { "name": "sort_order",     "in": "query", "required": false, "schema": { "type": "string", "enum": ["asc","desc"], "default": "desc" } }
+        ],
+        "responses": {
+          "200": { "description": "Recommendations returned successfully" },
+          "404": { "description": "Assessment not found" },
+          "409": { "description": "Assessment not yet complete" }
+        }
+      }
+    },
+
+    "/recommendations/{recommendation_id}/rate": {
+      "post": {
+        "summary": "Rate a recommendation post-engagement",
+        "tags": ["Recommendations"],
+        "parameters": [
+          { "name": "recommendation_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["was_implemented", "implementation_rating"],
+                "properties": {
+                  "was_implemented":       { "type": "boolean" },
+                  "implementation_rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+                  "implementation_notes":  { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Rating saved" },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Recommendation not found" }
+        }
+      }
     }
-  }
-}
 
   }
 }
