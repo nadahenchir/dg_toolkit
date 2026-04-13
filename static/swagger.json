@@ -30,11 +30,11 @@
                 "type": "object",
                 "required": ["name", "industry"],
                 "properties": {
-                  "name":      { "type": "string" },
-                  "industry":  { "type": "string", "enum": ["Banking","Insurance","Telecom","Energy","Retail","Healthcare","Public Sector","Other"] },
-                  "country":   { "type": "string" },
-                  "size_band": { "type": "string", "enum": ["SME","Large","Enterprise"] },
-                  "notes":     { "type": "string" }
+                  "name":                { "type": "string" },
+                  "industry":            { "type": "string", "enum": ["Banking","Insurance","Telecom","Energy","Retail","Healthcare","Public Sector","Industrial","Other"] },
+                  "industry_other":      { "type": "string", "description": "Required when industry is Other. Free text e.g. 'law firm'" },
+                  "country":             { "type": "string" },
+                  "size_band":           { "type": "string", "enum": ["SME","Large","Enterprise"] }
                 }
               }
             }
@@ -363,6 +363,21 @@
       }
     },
 
+    "/assessments/{assessment_id}/layer2/run": {
+      "post": {
+        "summary": "Manually trigger Layer 2 for an assessment",
+        "tags": ["Recommendations"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Layer 2 triggered successfully" },
+          "404": { "description": "Assessment not found" },
+          "409": { "description": "Layer 2 already running or not ready" }
+        }
+      }
+    },
+
     "/recommendations/{recommendation_id}/rate": {
       "post": {
         "summary": "Rate a recommendation post-engagement",
@@ -393,6 +408,5 @@
         }
       }
     }
-
   }
 }
