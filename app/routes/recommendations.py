@@ -3,12 +3,11 @@ app/routes/recommendations.py
 ------------------------------
 GET  /api/assessments/<assessment_id>/recommendations
 POST /api/recommendations/<recommendation_id>/rate
+POST /api/assessments/<assessment_id>/layer2/run
 """
 
 from flask import Blueprint, request, jsonify
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 
 recommendations_bp = Blueprint('recommendations', __name__)
 
@@ -83,6 +82,7 @@ def get_recommendations(assessment_id):
                    a.from_level,
                    r.action_category,
                    r.priority_score,
+                   r.layer2_confidence,
                    r.rag_narrative,
                    ks.maturity_level,
                    ds.target_level,
@@ -134,6 +134,7 @@ def get_recommendations(assessment_id):
                 'to_level':              r['from_level'] + 1,
                 'action_category':       r['action_category'],
                 'priority_score':        float(r['priority_score']),
+                'layer2_confidence':     r['layer2_confidence'],
                 'rag_narrative':         r['rag_narrative'],
                 'maturity_level':        r['maturity_level'],
                 'target_level':          r['target_level'],
@@ -207,11 +208,55 @@ def get_recommendations(assessment_id):
 
 
 # ---------------------------------------------------------------------------
+# POST /assessments/<assessment_id>/layer2/run
+# Manual trigger for Layer 2 — useful for testing and re-runs
+# ---------------------------------------------------------------------------
+
+@recommendations_bp.route(
+    '/assessments/<int:assessment_id>/layer2/run',
+    methods=['POST'],
+)
+def trigger_layer2(assessment_id):
+    # optional ?force=true to re-run even if already done
+    force = request.args.get('force', 'false').lower() == 'true'
+
+    conn = get_connection()
+    try:
+        cur = get_cursor(conn)
+        cur.execute(
+            """
+            SELECT scoring_status, layer2_status
+            FROM   dg_toolkit.assessments
+            WHERE  id = %s AND deleted_at IS NULL
+            """,
+            (assessment_id,),
+        )
+        row = cur.fetchone()
+        cur.close()
+    finally:
+        conn.close()
+
+    if not row:
+        return jsonify({'error': 'Assessment not found'}), 404
+    if row['scoring_status'] != 'done':
+        return jsonify({'error': 'Scoring not yet complete'}), 409
+    if row['layer2_status'] == 'running':
+        return jsonify({'error': 'Layer 2 already running'}), 409
+    if row['layer2_status'] == 'done' and not force:
+        return jsonify({
+            'error': 'Layer 2 already completed. Use ?force=true to re-run and overwrite existing scores.'
+        }), 409
+
+    try:
+        from app.services.layer2 import run_layer2
+        run_layer2(assessment_id)
+        return jsonify({'message': f'Layer 2 completed for assessment {assessment_id}'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
 # POST /recommendations/<recommendation_id>/rate
-#
-# Post-engagement learning loop.
-# Consultant rates whether a recommendation was implemented and how well it worked.
-# This data feeds Layer 2 similarity matching in future assessments.
 # ---------------------------------------------------------------------------
 
 @recommendations_bp.route(
@@ -225,7 +270,6 @@ def rate_recommendation(recommendation_id):
     implementation_rating = data.get('implementation_rating')
     implementation_notes  = data.get('implementation_notes')
 
-    # -- validate ----------------------------------------------------------
     if was_implemented is None:
         return jsonify({'error': 'was_implemented is required (true or false)'}), 400
     if not isinstance(was_implemented, bool):
@@ -239,7 +283,6 @@ def rate_recommendation(recommendation_id):
 
     conn = get_connection()
     try:
-        # -- verify recommendation exists ------------------------------------
         cur = get_cursor(conn)
         cur.execute(
             """
@@ -255,7 +298,6 @@ def rate_recommendation(recommendation_id):
         if not rec:
             return jsonify({'error': 'Recommendation not found'}), 404
 
-        # -- save rating -----------------------------------------------------
         cur = get_cursor(conn)
         cur.execute(
             """

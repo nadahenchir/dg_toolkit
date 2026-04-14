@@ -14,9 +14,9 @@ Logic:
        action_library (kpi_id + from_level = maturity_level).
     3. Derive action_category from impact/effort at insert time.
     4. Upsert one row per KPI into recommendations with priority_score = 1.0.
-    5. Set layer2_status = 'idle' to signal Layer 2 can run.
-    6. On any failure, set layer2_status = 'failed' and re-raise so the caller
-       can surface the error.
+    5. Trigger Layer 2 automatically on success — outside the try/except
+       so Layer 2 failures are not misreported as Layer 1 failures.
+    6. On any Layer 1 failure, set layer2_status = 'failed' and re-raise.
 
 action_category derivation:
     High impact + Low effort  → Quick Win
@@ -25,9 +25,7 @@ action_category derivation:
 """
 
 import logging
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection
+from app.db.connection import get_connection
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ def run_layer1(assessment_id: int) -> dict:
     """
     conn = get_connection()
     try:
-        # -- 1. guard: confirm scoring is done ---------------------------------
+        # -- 1. guard: confirm scoring is done --------------------------------
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -76,19 +74,7 @@ def run_layer1(assessment_id: int) -> dict:
                 f"Cannot run Layer 1: scoring_status is '{row[0]}', expected 'done'."
             )
 
-        # -- 2. mark layer2_status = running -----------------------------------
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                UPDATE dg_toolkit.assessments
-                SET    layer2_status = 'running'
-                WHERE  id = %s
-                """,
-                (assessment_id,),
-            )
-        conn.commit()
-
-        # -- 3. fetch non-excluded KPI scores ----------------------------------
+        # -- 2. fetch non-excluded KPI scores ---------------------------------
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -114,7 +100,7 @@ def run_layer1(assessment_id: int) -> dict:
                 skipped += 1
                 continue
 
-            # -- 4. look up action in action_library ---------------------------
+            # -- 3. look up action in action_library --------------------------
             with conn.cursor() as cur:
                 cur.execute(
                     """
@@ -128,7 +114,6 @@ def run_layer1(assessment_id: int) -> dict:
                 action = cur.fetchone()
 
             if not action:
-                # Seed gap — log and skip rather than hard-fail the whole run
                 logger.warning(
                     "Layer 1: no action found for kpi_id=%s from_level=%s — skipping.",
                     kpi_id, maturity_level,
@@ -139,7 +124,7 @@ def run_layer1(assessment_id: int) -> dict:
             action_id, impact, effort = action
             category = _derive_category(impact, effort)
 
-            # -- 5. upsert recommendation row ----------------------------------
+            # -- 4. upsert recommendation row ---------------------------------
             with conn.cursor() as cur:
                 cur.execute(
                     """
@@ -161,19 +146,7 @@ def run_layer1(assessment_id: int) -> dict:
                 else:
                     updated += 1
 
-        # -- 6. commit all recommendation rows ---------------------------------
-        conn.commit()
-
-        # -- 7. mark layer2_status = idle (Layer 2 can now run) ---------------
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                UPDATE dg_toolkit.assessments
-                SET    layer2_status = 'idle'
-                WHERE  id = %s
-                """,
-                (assessment_id,),
-            )
+        # -- 5. commit all recommendation rows --------------------------------
         conn.commit()
 
         summary = {
@@ -182,10 +155,10 @@ def run_layer1(assessment_id: int) -> dict:
             'skipped':  skipped,
         }
         logger.info("Layer 1 complete for assessment %s: %s", assessment_id, summary)
-        return summary
 
     except Exception:
-        # Mark failed so the pipeline status is honest
+        # Layer 1 failed — mark and re-raise
+        # Layer 2 has not been called yet so layer2_status = 'failed' is correct
         try:
             conn.rollback()
             with conn.cursor() as cur:
@@ -199,8 +172,15 @@ def run_layer1(assessment_id: int) -> dict:
                 )
             conn.commit()
         except Exception:
-            pass  # Don't mask the original error
-
+            pass
         raise
+
     finally:
         conn.close()
+
+    # -- 6. trigger Layer 2 — outside try/except so Layer 2 failures
+    #       are not misreported as Layer 1 failures --------------------
+    from app.services.layer2 import run_layer2
+    run_layer2(assessment_id)
+
+    return summary
