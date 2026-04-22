@@ -1,8 +1,5 @@
 from flask import Blueprint, request, jsonify
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 from datetime import datetime, timezone
 
 answers_bp = Blueprint('answers', __name__)
@@ -71,7 +68,16 @@ def save_kpi_answers(assessment_id, kpi_id):
         if not assessment:
             return jsonify({'error': 'Assessment not found'}), 404
         if assessment['status'] not in ('in_progress', 'submitted'):
-            return jsonify({'error': 'Assessment must be in_progress to save answers'}), 409
+            return jsonify({'error': 'Assessment must be in_progress or submitted to save answers'}), 409
+
+        # Get is_inverted from the KPI
+        cur.execute("""
+            SELECT is_inverted FROM dg_toolkit.kpis WHERE id = %s
+        """, [kpi_id])
+        kpi_row = cur.fetchone()
+        if not kpi_row:
+            return jsonify({'error': f'KPI {kpi_id} not found'}), 404
+        is_inverted = kpi_row['is_inverted']
 
         # Get all 4 questions for this KPI ordered by question_number
         cur.execute("""
@@ -84,8 +90,6 @@ def save_kpi_answers(assessment_id, kpi_id):
         if not questions:
             return jsonify({'error': f'KPI {kpi_id} not found'}), 404
 
-        # Build question_id -> question map
-        question_map = {q['id']: q for q in questions}
         q_by_number  = {q['question_number']: q for q in questions}
 
         # Find Q1 answer from submitted data
@@ -105,8 +109,9 @@ def save_kpi_answers(assessment_id, kpi_id):
         now = datetime.now(timezone.utc)
 
         # Determine gate outcome
+        gate_option   = 'Fully' if is_inverted else 'Not'
         q1_is_na      = q1_option == 'N.A'
-        q1_is_not     = q1_option == 'Not'
+        q1_is_not     = q1_option == gate_option
         hide_rest     = q1_is_na or q1_is_not
 
         # Build final answer rows for all 4 questions
@@ -251,10 +256,13 @@ def submit_assessment(assessment_id):
         conn.close()
 
     # Run scoring engine — uses its own connection, outside the submit transaction
-    from app.services.scoring import run_scoring
-    scoring_result = run_scoring(assessment_id)
-    return jsonify({
-        'message': 'Assessment submitted and scored',
-        'assessment_id': assessment_id,
-        **scoring_result
-    }), 200
+    try:
+        from app.services.scoring import run_scoring
+        scoring_result = run_scoring(assessment_id)
+        return jsonify({
+            'message': 'Assessment submitted and scored',
+            'assessment_id': assessment_id,
+            **scoring_result
+        }), 200
+    except Exception as e:
+        return jsonify({'error': f'Submitted but scoring failed: {str(e)}'}), 500

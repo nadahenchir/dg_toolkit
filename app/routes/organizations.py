@@ -1,7 +1,5 @@
 from flask import Blueprint, request, jsonify
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 
 organizations_bp = Blueprint('organizations', __name__)
 
@@ -46,30 +44,18 @@ def get_organization(org_id):
         cur.close()
         conn.close()
 
-# ============================================================
-# Replace your existing create_organization route in
-# app/routes/organizations.py with this updated version.
-#
-# Changes:
-# - Added 'Industrial' to valid_industries
-# - Added industry_other field support
-# - Auto-generates company_description via Groq on create
-# - Falls back gracefully if Groq is unavailable
-# ============================================================
-
 @organizations_bp.route('/organizations', methods=['POST'])
 def create_organization():
     data = request.get_json()
 
-    # required fields
     required = ['name', 'industry']
     for field in required:
         if not data.get(field):
             return jsonify({'error': f'{field} is required'}), 400
 
     valid_industries = [
-        'Banking', 'Insurance', 'Telecom', 'Energy',
-        'Retail', 'Healthcare', 'Public Sector', 'Industrial', 'Other'
+         'Banking', 'Insurance', 'Telecom', 'Energy', 'Retail',
+         'Healthcare', 'Public Sector', 'Industrial', 'Other',
     ]
     if data['industry'] not in valid_industries:
         return jsonify({'error': f"industry must be one of: {', '.join(valid_industries)}"}), 400
@@ -78,19 +64,20 @@ def create_organization():
     if data['industry'] == 'Other' and not data.get('industry_other'):
         return jsonify({'error': 'industry_other is required when industry is Other'}), 400
 
-    # auto-generate company description via Groq
-    try:
-        from app.services.layer2.normalizer import generate_company_description
-        company_description = generate_company_description(
-            name           = data['name'],
-            industry       = data['industry'],
-            industry_other = data.get('industry_other'),
-            size_band      = data.get('size_band', 'SME'),
-            country        = data.get('country', 'Tunisia'),
-        )
-    except Exception as e:
-        # fallback — don't block org creation if Groq fails
-        company_description = None
+    # use submitted description; auto-generate only if none provided
+    company_description = data.get('company_description') or None
+    if not company_description:
+        try:
+            from app.services.layer2.normalizer import generate_company_description
+            company_description = generate_company_description(
+                name           = data['name'],
+                industry       = data['industry'],
+                industry_other = data.get('industry_other'),
+                size_band      = data.get('size_band', 'SME'),
+                country        = data.get('country', 'Tunisia'),
+            )
+        except Exception:
+            company_description = None
 
     conn = get_connection()
     cur  = get_cursor(conn)

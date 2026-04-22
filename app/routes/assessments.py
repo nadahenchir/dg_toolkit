@@ -1,7 +1,5 @@
 from flask import Blueprint, request, jsonify
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 
 assessments_bp = Blueprint('assessments', __name__)
 
@@ -60,6 +58,123 @@ def get_assessment(assessment_id):
         conn.close()
 
 
+@assessments_bp.route('/assessments/<int:assessment_id>/questionnaire', methods=['GET'])
+def get_questionnaire(assessment_id):
+    """
+    Returns the full questionnaire structure for an assessment:
+    domains -> kpis -> questions, with any existing answers merged in.
+    """
+    conn = get_connection()
+    cur  = get_cursor(conn)
+    try:
+        # Check assessment exists
+        cur.execute("""
+            SELECT id, status FROM dg_toolkit.assessments
+            WHERE id = %s AND deleted_at IS NULL
+        """, [assessment_id])
+        assessment = cur.fetchone()
+        if not assessment:
+            return jsonify({'error': 'Assessment not found'}), 404
+
+        # Fetch all domains with their KPIs and questions in one query
+        cur.execute("""
+            SELECT
+                d.id          AS domain_id,
+                d.name        AS domain_name,
+                d.display_order,
+                k.id          AS kpi_id,
+                k.name        AS kpi_name,
+                k.domain_order AS kpi_order,
+                k.is_inverted,
+                q.id          AS question_id,
+                q.question_number,
+                q.question_text,
+                q.is_gatekeeper,
+                q.allows_na,
+                q.opt_fully_text,
+                q.opt_mostly_text,
+                q.opt_partially_text,
+                q.opt_slightly_text,
+                q.opt_not_text,
+                -- existing answer if any
+                a.selected_option,
+                a.is_na,
+                a.is_hidden,
+                a.raw_value
+            FROM dg_toolkit.domains d
+            JOIN dg_toolkit.kpis k      ON k.domain_id = d.id
+            JOIN dg_toolkit.questions q ON q.kpi_id    = k.id
+            LEFT JOIN dg_toolkit.answers a
+                ON a.question_id   = q.id
+                AND a.assessment_id = %s
+            ORDER BY d.display_order, k.domain_order, q.question_number
+        """, [assessment_id])
+        rows = cur.fetchall()
+
+        if not rows:
+            return jsonify([]), 200
+
+        # Build nested structure: domains -> kpis -> questions
+        domains_map = {}
+        for r in rows:
+            did = r['domain_id']
+            kid = r['kpi_id']
+
+            if did not in domains_map:
+                domains_map[did] = {
+                    'domain_id':     did,
+                    'domain_name':   r['domain_name'],
+                    'display_order': r['display_order'],
+                    'kpis':          {},
+                }
+
+            if kid not in domains_map[did]['kpis']:
+                domains_map[did]['kpis'][kid] = {
+                    'kpi_id':      kid,
+                    'kpi_name':    r['kpi_name'],
+                    'kpi_order':   r['kpi_order'],
+                    'is_inverted': r['is_inverted'],
+                    'questions':   [],
+                }
+
+            domains_map[did]['kpis'][kid]['questions'].append({
+                'id':               r['question_id'],
+                'question_number':  r['question_number'],
+                'question_text':    r['question_text'],
+                'is_gatekeeper':    r['is_gatekeeper'],
+                'allows_na':        r['allows_na'],
+                'opt_fully_text':   r['opt_fully_text'],
+                'opt_mostly_text':  r['opt_mostly_text'],
+                'opt_partially_text': r['opt_partially_text'],
+                'opt_slightly_text':  r['opt_slightly_text'],
+                'opt_not_text':     r['opt_not_text'],
+                # existing answer — null if not yet answered
+                'selected_option':  r['selected_option'],
+                'is_na':            r['is_na'],
+                'is_hidden':        r['is_hidden'],
+                'raw_value':        float(r['raw_value']) if r['raw_value'] is not None else None,
+            })
+
+        # Flatten to list
+        result = []
+        for d in sorted(domains_map.values(), key=lambda x: x['display_order']):
+            kpis_list = sorted(d['kpis'].values(), key=lambda x: x['kpi_order'])
+            result.append({
+                'domain_id':     d['domain_id'],
+                'domain_name':   d['domain_name'],
+                'display_order': d['display_order'],
+                'kpis':          kpis_list,
+            })
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
 @assessments_bp.route('/assessments', methods=['POST'])
 def create_assessment():
     data = request.get_json()
@@ -72,7 +187,6 @@ def create_assessment():
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        # Verify organization exists and is not deleted
         cur.execute("""
             SELECT id FROM dg_toolkit.organizations
             WHERE id = %s AND deleted_at IS NULL
@@ -80,7 +194,6 @@ def create_assessment():
         if not cur.fetchone():
             return jsonify({'error': 'Organization not found'}), 404
 
-        # Verify consultant exists
         cur.execute("""
             SELECT id FROM dg_toolkit.consultants
             WHERE id = %s
@@ -115,14 +228,12 @@ def create_assessment():
 def set_targets(assessment_id):
     data = request.get_json()
 
-    # Expect: { "targets": [ {"domain_id": 1, "target_level": 3}, ... ] }
     if not data.get('targets') or not isinstance(data['targets'], list):
         return jsonify({'error': 'targets must be a non-empty list'}), 400
 
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        # Check assessment exists and targets are not locked
         cur.execute("""
             SELECT id, targets_locked, status
             FROM dg_toolkit.assessments
@@ -134,14 +245,12 @@ def set_targets(assessment_id):
         if assessment['targets_locked']:
             return jsonify({'error': 'Targets are locked — assessment is already in progress'}), 409
 
-        # Validate all targets
         for t in data['targets']:
             if 'domain_id' not in t or 'target_level' not in t:
                 return jsonify({'error': 'Each target must have domain_id and target_level'}), 400
             if not (1 <= t['target_level'] <= 5):
-                return jsonify({'error': f"target_level must be between 1 and 5"}), 400
+                return jsonify({'error': 'target_level must be between 1 and 5'}), 400
 
-        # Upsert all targets
         for t in data['targets']:
             cur.execute("""
                 INSERT INTO dg_toolkit.domain_targets
@@ -153,7 +262,6 @@ def set_targets(assessment_id):
 
         conn.commit()
 
-        # Return all targets for this assessment
         cur.execute("""
             SELECT dt.domain_id, d.name AS domain_name, dt.target_level
             FROM dg_toolkit.domain_targets dt
@@ -177,7 +285,6 @@ def start_assessment(assessment_id):
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        # Check assessment exists and is still in draft
         cur.execute("""
             SELECT id, status, targets_locked
             FROM dg_toolkit.assessments
@@ -189,7 +296,6 @@ def start_assessment(assessment_id):
         if assessment['status'] != 'draft':
             return jsonify({'error': f"Assessment is already {assessment['status']}"}), 409
 
-        # Check all 11 domain targets are set
         cur.execute("""
             SELECT COUNT(*) AS count
             FROM dg_toolkit.domain_targets
@@ -201,7 +307,6 @@ def start_assessment(assessment_id):
                 'error': f'All 11 domain targets must be set before starting. Currently {count}/11 set.'
             }), 400
 
-        # Lock targets and move to in_progress
         cur.execute("""
             UPDATE dg_toolkit.assessments
             SET status = 'in_progress',

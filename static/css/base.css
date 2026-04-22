@@ -1,0 +1,192 @@
+/* ============================================================
+   base.css — shared styles across all DG Toolkit pages
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+:root {
+  --purple:      #7213ea;
+  --navy:        #00338d;
+  --blue:        #1f4ae3;
+  --cyan:        #00b8f5;
+  --pink:        #fa00c3;
+  --deep-navy:   #00266a;
+  --deep-purple: #560eb0;
+  --white:       #ffffff;
+  --bg:          #00152e;
+  --surface:     #001e42;
+  --surface2:    #002355;
+  --border:      #0a3270;
+  --text:        #e8f0ff;
+  --muted:       #7a9cc8;
+  --radius:      10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, #7213ea18 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, #1f4ae325 0%, transparent 60%);
+}
+
+/* ── Topbar ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 58px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,30,66,0.85);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'DM Serif Display', serif; font-size: 17px;
+  color: var(--white); text-decoration: none;
+}
+.logo-icon {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white;
+  font-family: 'DM Sans', sans-serif;
+}
+.topbar-tag {
+  font-size: 12px; color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 20px; letter-spacing: 0.05em;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 22px; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-weight: 600; cursor: pointer; border: none;
+  transition: all 0.2s; text-decoration: none;
+}
+.btn-ghost {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+  color: white; box-shadow: 0 4px 16px #1f4ae340;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px #7213ea50; }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  padding: 12px 18px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; z-index: 999;
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.3s ease; pointer-events: none; max-width: 320px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: #00b04f22; border: 1px solid #00b04f60; color: #5fffa0; }
+.toast.error   { background: #fa00c322; border: 1px solid #fa00c360; color: #ff80e0; }
+
+/* ── Loading overlay ── */
+.loading-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,21,46,0.85); z-index: 200;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  backdrop-filter: blur(4px);
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border); border-top-color: var(--cyan);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+.loading-text { color: var(--muted); font-size: 13px; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fillLine { from { width: 0 } to { width: 100% } }
+
+/* ── Card ── */
+.card {
+  width: 100%; max-width: 860px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+}
+.card-header {
+  padding: 24px 32px 20px; border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
+  display: flex; align-items: center; gap: 14px;
+}
+.card-header-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.card-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px; font-weight: 400; color: var(--white);
+}
+.card-header p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.card-body { padding: 32px; }
+.card-footer {
+  padding: 20px 32px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2);
+}
+
+/* ── Form fields ── */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--muted); text-transform: uppercase;
+}
+.field label .req { color: var(--pink); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  padding: 10px 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%; appearance: none; -webkit-appearance: none;
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9cc8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px; cursor: pointer;
+}
+.field textarea { resize: vertical; min-height: 80px; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--blue); box-shadow: 0 0 0 3px #1f4ae320;
+}
+.field input::placeholder, .field textarea::placeholder { color: #3d5a80; }
+.field select option { background: #001e42; }
+.field.error input, .field.error select, .field.error textarea {
+  border-color: var(--pink); box-shadow: 0 0 0 3px #fa00c315;
+}
+.field .error-msg { font-size: 11px; color: var(--pink); display: none; }
+.field.error .error-msg { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .topbar { padding: 0 16px; }
+  .card-body { padding: 20px; }
+  .card-footer { flex-direction: column; gap: 10px; }
+}

@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 
 scores_bp = Blueprint('scores', __name__)
 

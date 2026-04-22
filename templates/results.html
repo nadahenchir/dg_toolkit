@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assessment Results — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading-screen" class="loading-screen" style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+  <div class="spinner"></div>
+  <p style="color:var(--muted);font-size:13px">Loading results…</p>
+</div>
+
+<!-- Results content -->
+<div id="results-content" class="main" style="display:none;">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-eyebrow">Data Governance Maturity Assessment</div>
+    <div class="page-header-row">
+      <h1>Assessment <span id="org-name">Results</span></h1>
+      <div class="page-header-meta">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M1.5 10.5c0-2.485 2.015-4.5 4.5-4.5s4.5 2.015 4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span id="consultant-name"></span>
+        </span>
+        <span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <rect x="1" y="2" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M4 1v2M8 1v2M1 5h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span id="scored-at"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-row">
+    <div class="summary-card highlight">
+      <div class="summary-label">Overall Score</div>
+      <div class="summary-value" id="overall-score">—</div>
+      <div class="summary-sub">Out of 100%</div>
+    </div>
+    <div class="summary-card highlight">
+      <div class="summary-label">Maturity Level</div>
+      <div class="summary-value level" id="overall-level">—</div>
+      <div class="summary-sub" id="level-label"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Domains at Target</div>
+      <div class="summary-value" id="domains-at-target">—</div>
+      <div class="summary-sub">of 11 domains</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Avg. Maturity Gap</div>
+      <div class="summary-value" id="avg-gap">—</div>
+      <div class="summary-sub">levels below target</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Domains Scored</div>
+      <div class="summary-value" id="domains-scored">—</div>
+      <div class="summary-sub">of 11 domains</div>
+    </div>
+  </div>
+
+  <!-- Radar chart -->
+  <div class="section-title">Maturity Profile</div>
+  <div class="radar-wrap">
+    <canvas id="radarChart"></canvas>
+  </div>
+
+  <!-- Domain breakdown -->
+  <div class="section-title">Domain Breakdown</div>
+  <div class="domains-grid" id="domains-grid"></div>
+
+  <!-- Actions -->
+  <div class="actions-row">
+    <a href="/create_assessment" class="btn btn-ghost" style="font-size:12px;padding:9px 18px">
+      New Assessment
+    </a>
+    <button class="btn btn-primary" style="font-size:12px;padding:9px 18px"
+            onclick="window.location.href='/rating?assessment_id=' + assessmentId">
+      Rate Recommendations
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M4 2l5 4.5L4 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/results.js') }}"></script>
+</body>
+</html>

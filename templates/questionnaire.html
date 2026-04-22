@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Questionnaire — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/questionnaire.css') }}"/>
+</head>
+<body>
+
+<!-- Loading screen (shown while fetching data) -->
+<div id="loading-screen" class="loading-screen" style="height:100vh;display:flex;">
+  <div class="spinner"></div>
+  <p>Loading questionnaire…</p>
+</div>
+
+<!-- Main app layout (hidden until data loads) -->
+<div id="q-content" class="app-layout" style="display:none;">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-eyebrow">Data Governance Maturity</div>
+      <div class="sidebar-org" id="sidebar-org">Loading…</div>
+    </div>
+
+    <div class="overall-progress">
+      <div class="progress-label">
+        <span id="progress-label-text">0 / 53 KPIs</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="domain-list" id="domain-list"></div>
+  </aside>
+
+  <!-- ── Main content ── -->
+  <div class="main-content">
+
+    <!-- Top bar -->
+    <div class="q-topbar">
+      <div class="q-topbar-left">
+        <div class="q-domain-badge" id="q-domain-badge">D01</div>
+        <div class="q-domain-label" id="q-domain-label">Loading…</div>
+      </div>
+      <div class="q-topbar-right">
+        <div class="save-status" id="save-status"></div>
+      </div>
+    </div>
+
+    <!-- KPI scroll area -->
+    <div class="kpi-area" id="kpi-area"></div>
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <button class="btn btn-ghost" id="nav-prev" onclick="navDomain(-1)" style="font-size:12px;padding:8px 16px">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M9 2L4 6.5 9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Previous Domain
+      </button>
+      <div class="domain-nav-info" id="nav-info">Domain <strong>1</strong> of <strong>11</strong></div>
+      <button class="btn btn-ghost" id="nav-next" onclick="navDomain(1)" style="font-size:12px;padding:8px 16px">
+        Next Domain
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M4 2l5 4.5L4 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading overlay (for submit) -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Processing…</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
+</body>
+</html>
