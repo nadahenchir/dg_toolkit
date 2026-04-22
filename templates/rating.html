@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rate Recommendations — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/rating.css') }}"/>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading-screen" style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+  <div class="spinner"></div>
+  <p style="color:var(--muted);font-size:13px">Loading recommendations…</p>
+</div>
+
+<!-- Rating content -->
+<div id="rating-content" class="main" style="display:none;flex-direction:column;align-items:center;">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-eyebrow">Post-Engagement Review</div>
+    <h1>Rate Recommendations — <span id="org-name" style="background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></span></h1>
+    <p>After implementing recommendations, rate their effectiveness to improve future assessments.</p>
+  </div>
+
+  <!-- Info banner -->
+  <div class="info-banner">
+    <strong>Why rate?</strong> Your ratings feed the learning loop — highly-rated recommendations
+    get prioritized in similar future assessments through the similarity engine.
+    You only need to rate recommendations that were actually implemented.
+  </div>
+
+  <!-- Progress -->
+  <div class="rating-progress">
+    <div class="rating-progress-label">
+      <span id="progress-label">0 / 0 rated</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="rating-progress-track">
+      <div class="rating-progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Done banner -->
+  <div class="done-banner" id="done-banner">
+    <div style="font-size:24px">✓</div>
+    <div class="done-banner-text">
+      <h3>All recommendations rated</h3>
+      <p>Thank you — your feedback has been saved and will improve future assessments.</p>
+    </div>
+  </div>
+
+  <!-- Domain sections -->
+  <div id="domains-container" style="width:100%;max-width:860px;"></div>
+
+  <!-- Back to results -->
+  <div style="width:100%;max-width:860px;display:flex;justify-content:flex-start;margin-top:8px;">
+    <button class="btn btn-ghost" style="font-size:12px;padding:8px 16px"
+            onclick="window.location.href='/results?assessment_id=' + assessmentId">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M9 2L4 6.5 9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Results
+    </button>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/rating.js') }}"></script>
+</body>
+</html>
