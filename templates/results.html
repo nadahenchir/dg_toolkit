@@ -10,10 +10,21 @@
 </head>
 <body>
 
+<!-- ── Topbar ── -->
+<header class="topbar">
+  <a class="topbar-logo" href="#">
+    <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
+  </a>
+  <div class="topbar-right">
+    <div class="topbar-divider"></div>
+    <span class="topbar-org" id="topbar-org-name"></span>
+  </div>
+</header>
+
 <!-- Loading screen -->
-<div id="loading-screen" class="loading-screen" style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+<div id="loading-screen" class="loading-screen" style="height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
   <div class="spinner"></div>
-  <p style="color:var(--muted);font-size:13px">Loading results…</p>
+  <p style="color:var(--text-muted);font-size:13px;font-weight:700">Loading results…</p>
 </div>
 
 <!-- Results content -->
@@ -23,7 +34,7 @@
   <div class="page-header">
     <div class="page-header-eyebrow">Data Governance Maturity Assessment</div>
     <div class="page-header-row">
-      <h1>Assessment <span id="org-name">Results</span></h1>
+      <h1>Assessment Results — <span id="org-name"></span></h1>
       <div class="page-header-meta">
         <span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -75,6 +86,7 @@
   <!-- Radar chart -->
   <div class="section-title">Maturity Profile</div>
   <div class="radar-wrap">
+    <h3>Current vs Target — All Domains</h3>
     <canvas id="radarChart"></canvas>
   </div>
 
@@ -103,5 +115,13 @@
 
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+<script>
+  /* Mirror org name into topbar once results.js sets #org-name */
+  const _orgEl     = document.getElementById('org-name');
+  const _topbarOrg = document.getElementById('topbar-org-name');
+  new MutationObserver(() => {
+    _topbarOrg.textContent = _orgEl.textContent;
+  }).observe(_orgEl, { childList: true, characterData: true, subtree: true });
+</script>
 </body>
 </html>

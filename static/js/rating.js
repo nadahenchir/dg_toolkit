@@ -248,5 +248,5 @@ function updateProgress() {
 
 function showError(msg) {
   document.getElementById('loading-screen').innerHTML =
-    `<p style="color:var(--pink);font-size:13px">${msg}</p>`;
+    `<p style="color:var(--error-color);font-size:13px">${msg}</p>`;
 }

@@ -9,73 +9,88 @@
 </head>
 <body>
 
-<!-- Loading screen (shown while fetching data) -->
+<!-- Loading screen -->
 <div id="loading-screen" class="loading-screen" style="height:100vh;display:flex;">
   <div class="spinner"></div>
   <p>Loading questionnaire…</p>
 </div>
 
-<!-- Main app layout (hidden until data loads) -->
-<div id="q-content" class="app-layout" style="display:none;">
+<!-- Main app layout -->
+<div id="q-content" class="app-layout" style="display:none;flex-direction:column;">
 
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-eyebrow">Data Governance Maturity</div>
-      <div class="sidebar-org" id="sidebar-org">Loading…</div>
+  <!-- ── Topbar ── -->
+  <header class="topbar" style="position:relative;z-index:100;flex-shrink:0;">
+    <a class="topbar-logo" href="#">
+      <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
+    </a>
+    <div class="topbar-right">
+      <div class="topbar-divider"></div>
+      <span class="topbar-org" id="topbar-org-name">Loading…</span>
     </div>
+  </header>
 
-    <div class="overall-progress">
-      <div class="progress-label">
-        <span id="progress-label-text">0 / 53 KPIs</span>
-        <span id="progress-pct">0%</span>
+  <!-- ── App body (sidebar + content) ── -->
+  <div style="display:flex;flex:1;overflow:hidden;">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-eyebrow">Data Governance Maturity</div>
+        <div class="sidebar-org" id="sidebar-org">Loading…</div>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+
+      <div class="overall-progress">
+        <div class="progress-label">
+          <span id="progress-label-text">0 / 53 KPIs</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
       </div>
+
+      <div class="domain-list" id="domain-list"></div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="main-content">
+
+      <!-- Sub-topbar (domain context) -->
+      <div class="q-topbar">
+        <div class="q-topbar-left">
+          <div class="q-domain-badge" id="q-domain-badge">D01</div>
+          <div class="q-domain-label" id="q-domain-label">Loading…</div>
+        </div>
+        <div class="q-topbar-right">
+          <div class="save-status" id="save-status"></div>
+        </div>
+      </div>
+
+      <!-- KPI scroll area -->
+      <div class="kpi-area" id="kpi-area"></div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <button class="btn btn-ghost" id="nav-prev" onclick="navDomain(-1)" style="font-size:12px;padding:8px 16px">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M9 2L4 6.5 9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Previous Domain
+        </button>
+        <div class="domain-nav-info" id="nav-info">Domain <strong>1</strong> of <strong>11</strong></div>
+        <button class="btn btn-ghost" id="nav-next" onclick="navDomain(1)" style="font-size:12px;padding:8px 16px">
+          Next Domain
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M4 2l5 4.5L4 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
     </div>
-
-    <div class="domain-list" id="domain-list"></div>
-  </aside>
-
-  <!-- ── Main content ── -->
-  <div class="main-content">
-
-    <!-- Top bar -->
-    <div class="q-topbar">
-      <div class="q-topbar-left">
-        <div class="q-domain-badge" id="q-domain-badge">D01</div>
-        <div class="q-domain-label" id="q-domain-label">Loading…</div>
-      </div>
-      <div class="q-topbar-right">
-        <div class="save-status" id="save-status"></div>
-      </div>
-    </div>
-
-    <!-- KPI scroll area -->
-    <div class="kpi-area" id="kpi-area"></div>
-
-    <!-- Bottom nav -->
-    <div class="bottom-nav">
-      <button class="btn btn-ghost" id="nav-prev" onclick="navDomain(-1)" style="font-size:12px;padding:8px 16px">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M9 2L4 6.5 9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Previous Domain
-      </button>
-      <div class="domain-nav-info" id="nav-info">Domain <strong>1</strong> of <strong>11</strong></div>
-      <button class="btn btn-ghost" id="nav-next" onclick="navDomain(1)" style="font-size:12px;padding:8px 16px">
-        Next Domain
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M4 2l5 4.5L4 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-
   </div>
 </div>
 
-<!-- Loading overlay (for submit) -->
+<!-- Loading overlay (submit) -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text" id="loading-text">Processing…</div>
@@ -86,5 +101,14 @@
 
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
+
+<script>
+  /* Mirror sidebar org name into the topbar once questionnaire.js sets it */
+  const _sidebarOrg = document.getElementById('sidebar-org');
+  const _topbarOrg  = document.getElementById('topbar-org-name');
+  new MutationObserver(() => {
+    _topbarOrg.textContent = _sidebarOrg.textContent;
+  }).observe(_sidebarOrg, { childList: true, characterData: true, subtree: true });
+</script>
 </body>
 </html>

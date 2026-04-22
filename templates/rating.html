@@ -9,10 +9,21 @@
 </head>
 <body>
 
+<!-- ── Topbar ── -->
+<header class="topbar">
+  <a class="topbar-logo" href="#">
+    <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
+  </a>
+  <div class="topbar-right">
+    <div class="topbar-divider"></div>
+    <span class="topbar-org" id="topbar-org-name"></span>
+  </div>
+</header>
+
 <!-- Loading screen -->
-<div id="loading-screen" style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+<div id="loading-screen" style="height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
   <div class="spinner"></div>
-  <p style="color:var(--muted);font-size:13px">Loading recommendations…</p>
+  <p style="color:var(--text-muted);font-size:13px;font-weight:700">Loading recommendations…</p>
 </div>
 
 <!-- Rating content -->
@@ -21,7 +32,7 @@
   <!-- Page header -->
   <div class="page-header">
     <div class="page-header-eyebrow">Post-Engagement Review</div>
-    <h1>Rate Recommendations — <span id="org-name" style="background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></span></h1>
+    <h1>Rate Recommendations — <span id="org-name"></span></h1>
     <p>After implementing recommendations, rate their effectiveness to improve future assessments.</p>
   </div>
 
@@ -45,7 +56,7 @@
 
   <!-- Done banner -->
   <div class="done-banner" id="done-banner">
-    <div style="font-size:24px">✓</div>
+    <div style="font-size:22px;color:var(--success)">✓</div>
     <div class="done-banner-text">
       <h3>All recommendations rated</h3>
       <p>Thank you — your feedback has been saved and will improve future assessments.</p>
@@ -53,10 +64,10 @@
   </div>
 
   <!-- Domain sections -->
-  <div id="domains-container" style="width:100%;max-width:860px;"></div>
+  <div id="domains-container" style="width:100%;max-width:880px;"></div>
 
   <!-- Back to results -->
-  <div style="width:100%;max-width:860px;display:flex;justify-content:flex-start;margin-top:8px;">
+  <div style="width:100%;max-width:880px;display:flex;justify-content:flex-start;margin-top:8px;">
     <button class="btn btn-ghost" style="font-size:12px;padding:8px 16px"
             onclick="window.location.href='/results?assessment_id=' + assessmentId">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -73,5 +84,13 @@
 
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/rating.js') }}"></script>
+<script>
+  /* Mirror org name into topbar once rating.js sets #org-name */
+  const _orgEl     = document.getElementById('org-name');
+  const _topbarOrg = document.getElementById('topbar-org-name');
+  new MutationObserver(() => {
+    _topbarOrg.textContent = _orgEl.textContent;
+  }).observe(_orgEl, { childList: true, characterData: true, subtree: true });
+</script>
 </body>
 </html>

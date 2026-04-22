@@ -133,20 +133,20 @@ function renderRadar(domains) {
         {
           label: 'Current',
           data: current,
-          backgroundColor: 'rgba(31, 74, 227, 0.15)',
-          borderColor: '#1f4ae3',
+          backgroundColor: 'rgba(0, 51, 141, 0.10)',
+          borderColor: '#00338D',
           borderWidth: 2,
-          pointBackgroundColor: '#1f4ae3',
+          pointBackgroundColor: '#00338D',
           pointRadius: 4,
         },
         {
           label: 'Target',
           data: targets,
-          backgroundColor: 'rgba(0, 184, 245, 0.08)',
-          borderColor: '#00b8f5',
+          backgroundColor: 'rgba(0, 145, 218, 0.07)',
+          borderColor: '#0091DA',
           borderWidth: 1.5,
           borderDash: [4, 4],
-          pointBackgroundColor: '#00b8f5',
+          pointBackgroundColor: '#0091DA',
           pointRadius: 3,
         },
       ],
@@ -158,32 +158,32 @@ function renderRadar(domains) {
           min: 0, max: 5,
           ticks: {
             stepSize: 1,
-            color: '#7a9cc8',
-            font: { size: 10, family: 'DM Sans' },
+            color: '#718096',
+            font: { size: 10, family: 'Arial' },
             backdropColor: 'transparent',
           },
-          grid:        { color: '#0a3270' },
-          angleLines:  { color: '#0a3270' },
+          grid:        { color: '#D0D9E8' },
+          angleLines:  { color: '#D0D9E8' },
           pointLabels: {
-            color: '#7a9cc8',
-            font: { size: 10, family: 'DM Sans' },
+            color: '#4A5568',
+            font: { size: 10, family: 'Arial' },
           },
         },
       },
       plugins: {
         legend: {
           labels: {
-            color: '#7a9cc8',
-            font: { size: 11, family: 'DM Sans' },
+            color: '#4A5568',
+            font: { size: 11, family: 'Arial' },
             boxWidth: 12,
           },
         },
         tooltip: {
-          backgroundColor: '#001e42',
-          borderColor: '#0a3270',
+          backgroundColor: '#FFFFFF',
+          borderColor: '#D0D9E8',
           borderWidth: 1,
-          titleColor: '#e8f0ff',
-          bodyColor: '#7a9cc8',
+          titleColor: '#1A1A2E',
+          bodyColor: '#718096',
           callbacks: {
             label: ctx => ` ${ctx.dataset.label}: L${ctx.raw}`,
           },
@@ -195,5 +195,5 @@ function renderRadar(domains) {
 
 function showError(msg) {
   document.getElementById('loading-screen').innerHTML =
-    `<p style="color:var(--pink);font-size:13px">${msg}</p>`;
+    `<p style="color:var(--error-color);font-size:13px;font-weight:700">${msg}</p>`;
 }

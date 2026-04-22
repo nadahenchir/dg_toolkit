@@ -388,7 +388,7 @@ async function saveKpi(kpiId) {
       card.classList.add('complete');
       card.classList.remove('open', 'active');
       card.querySelector('.kpi-check').textContent = '✓';
-      card.querySelector('.kpi-number').style.color = '#00b04f';
+      card.querySelector('.kpi-number').style.color = 'var(--success)';
     }
 
     // Update sidebar
@@ -484,6 +484,6 @@ function setSaveStatus(state) {
 
 function showError(msg) {
   document.getElementById('loading-screen').innerHTML = `
-    <p style="color:var(--pink)">${msg}</p>
+    <p style="color:var(--error-color)">${msg}</p>
   `;
 }
