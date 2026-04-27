@@ -1,7 +1,4 @@
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 from openpyxl import load_workbook
 
 EXCEL_PATH = r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\data\dg toolkit seed data (2).xlsx'

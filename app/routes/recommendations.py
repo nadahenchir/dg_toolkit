@@ -4,6 +4,7 @@ app/routes/recommendations.py
 GET  /api/assessments/<assessment_id>/recommendations
 POST /api/recommendations/<recommendation_id>/rate
 POST /api/assessments/<assessment_id>/layer2/run
+POST /api/assessments/<assessment_id>/layer3/run
 """
 
 from flask import Blueprint, request, jsonify
@@ -125,8 +126,10 @@ def get_recommendations(assessment_id):
                 'recommendation_id':     r['recommendation_id'],
                 'kpi_id':                r['kpi_id'],
                 'kpi_name':              r['kpi_name'],
+                'kpi_order':             r['kpi_order'],
                 'domain_id':             r['domain_id'],
                 'domain_name':           r['domain_name'],
+                'domain_order':          r['domain_order'],
                 'action_text':           r['action_text'],
                 'impact':                r['impact'],
                 'effort':                r['effort'],
@@ -162,6 +165,7 @@ def get_recommendations(assessment_id):
                 domains[did] = {
                     'domain_id':       did,
                     'domain_name':     rec['domain_name'],
+                    'domain_order':    rec['domain_order'],
                     'recommendations': [],
                 }
             domains[did]['recommendations'].append(rec)
@@ -177,7 +181,7 @@ def get_recommendations(assessment_id):
             'assessment_id': assessment_id,
             'layer2_status': row['layer2_status'],
             'layer3_status': row['layer3_status'],
-            'rag_ready':     row['layer3_status'] == 'done',
+            'rag_ready':     row['layer3_status'] in ('done', 'partial'),
             'filters_applied': {
                 'domain_id':       domain_id_filter,
                 'action_category': category_filter,
@@ -197,7 +201,7 @@ def get_recommendations(assessment_id):
                 'high_impact': high_impact,
                 'low_effort':  low_effort,
             },
-            'by_domain':       list(domains.values()),
+            'by_domain':       list(sorted(domains.values(), key=lambda x: x['domain_order'])),
             'recommendations': results,
         }), 200
 
@@ -217,7 +221,6 @@ def get_recommendations(assessment_id):
     methods=['POST'],
 )
 def trigger_layer2(assessment_id):
-    # optional ?force=true to re-run even if already done
     force = request.args.get('force', 'false').lower() == 'true'
 
     conn = get_connection()
@@ -251,6 +254,71 @@ def trigger_layer2(assessment_id):
         from app.services.layer2 import run_layer2
         run_layer2(assessment_id)
         return jsonify({'message': f'Layer 2 completed for assessment {assessment_id}'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
+# POST /assessments/<assessment_id>/layer3/run
+# Manual trigger for Layer 3 RAG — mirrors the layer2/run pattern
+# ---------------------------------------------------------------------------
+
+@recommendations_bp.route(
+    '/assessments/<int:assessment_id>/layer3/run',
+    methods=['POST'],
+)
+def trigger_layer3(assessment_id):
+    force = request.args.get('force', 'false').lower() == 'true'
+
+    conn = get_connection()
+    try:
+        cur = get_cursor(conn)
+        cur.execute(
+            """
+            SELECT layer2_status, layer3_status
+            FROM   dg_toolkit.assessments
+            WHERE  id = %s AND deleted_at IS NULL
+            """,
+            (assessment_id,),
+        )
+        row = cur.fetchone()
+        cur.close()
+    finally:
+        conn.close()
+
+    if not row:
+        return jsonify({'error': 'Assessment not found'}), 404
+    if row['layer2_status'] != 'done':
+        return jsonify({'error': 'Layer 2 must complete before running Layer 3'}), 409
+    if row['layer3_status'] == 'running':
+        return jsonify({'error': 'Layer 3 already running'}), 409
+    # 'partial' (some narratives failed) can always be re-triggered without force=true
+    if row['layer3_status'] == 'done' and not force:
+        return jsonify({
+            'error': 'Layer 3 already completed. Use ?force=true to re-run and overwrite existing narratives.'
+        }), 409
+
+    if force:
+        conn = get_connection()
+        try:
+            cur = get_cursor(conn)
+            cur.execute(
+                "UPDATE dg_toolkit.recommendations SET rag_status = 'pending' WHERE assessment_id = %s",
+                (assessment_id,),
+            )
+            conn.commit()
+            cur.close()
+        finally:
+            conn.close()
+
+    try:
+        from app.services.layer3.runner import run_layer3
+        result = run_layer3(assessment_id)
+        return jsonify({
+            'message': f'Layer 3 completed for assessment {assessment_id}',
+            'done':    result['done'],
+            'failed':  result['failed'],
+        }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

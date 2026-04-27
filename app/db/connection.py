@@ -11,7 +11,7 @@ DB_CONFIG = {
     "dbname":   os.getenv("DB_NAME", "dg_toolkit"),
     "user":     os.getenv("DB_USER", "postgres"),
     "password": os.getenv("DB_PASSWORD", ""),
-    "options":  "-c search_path=dg_toolkit"
+    "options":  "-c search_path=dg_toolkit,public"
 }
 
 def get_connection():

@@ -368,12 +368,30 @@
         "summary": "Manually trigger Layer 2 for an assessment",
         "tags": ["Recommendations"],
         "parameters": [
-          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "force", "in": "query", "required": false, "schema": { "type": "boolean", "default": false }, "description": "Set to true to re-run and overwrite existing scores" }
         ],
         "responses": {
           "200": { "description": "Layer 2 triggered successfully" },
           "404": { "description": "Assessment not found" },
           "409": { "description": "Layer 2 already running or not ready" }
+        }
+      }
+    },
+
+    "/assessments/{assessment_id}/layer3/run": {
+      "post": {
+        "summary": "Manually trigger Layer 3 RAG for an assessment",
+        "tags": ["Recommendations"],
+        "parameters": [
+          { "name": "assessment_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "force", "in": "query", "required": false, "schema": { "type": "boolean", "default": false }, "description": "Set to true to re-run and overwrite existing narratives" }
+        ],
+        "responses": {
+          "200": { "description": "Layer 3 completed successfully" },
+          "404": { "description": "Assessment not found" },
+          "409": { "description": "Layer 2 not done, or Layer 3 already running or completed" },
+          "500": { "description": "Internal server error" }
         }
       }
     },

@@ -16,12 +16,11 @@ Two Groq-powered functions:
 import logging
 import os
 
-import requests
+from groq import Groq
 
 logger = logging.getLogger(__name__)
 
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama-3.1-8b-instant"
+GROQ_MODEL = "llama-3.1-8b-instant"
 
 
 def _call_groq(prompt: str, max_tokens: int = 100) -> str | None:
@@ -35,22 +34,14 @@ def _call_groq(prompt: str, max_tokens: int = 100) -> str | None:
         return None
 
     try:
-        response = requests.post(
-            GROQ_API_URL,
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": GROQ_MODEL,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": max_tokens,
-                "temperature": 0,
-            },
-            timeout=10,
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+            temperature=0,
         )
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"].strip()
+        return response.choices[0].message.content.strip()
 
     except Exception as e:
         logger.warning(f"[Normalizer] Groq call failed: {e}")

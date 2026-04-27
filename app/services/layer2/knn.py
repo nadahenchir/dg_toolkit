@@ -73,9 +73,9 @@ def fetch_assessment_profile(conn, assessment_id: int) -> dict | None:
         cur.execute("""
             SELECT o.industry, o.industry_other, o.size_band,
                    o.company_description, s.overall_level
-            FROM assessments a
-            JOIN organizations o     ON o.id = a.organization_id
-            JOIN assessment_scores s ON s.assessment_id = a.id
+            FROM dg_toolkit.assessments a
+            JOIN dg_toolkit.organizations o     ON o.id = a.organization_id
+            JOIN dg_toolkit.assessment_scores s ON s.assessment_id = a.id
             WHERE a.id = %s AND a.deleted_at IS NULL
         """, (assessment_id,))
         row = cur.fetchone()
@@ -87,7 +87,7 @@ def fetch_assessment_profile(conn, assessment_id: int) -> dict | None:
         # fetch 11 domain levels ordered by domain_id
         cur.execute("""
             SELECT domain_id, COALESCE(maturity_level, 1)
-            FROM domain_scores
+            FROM dg_toolkit.domain_scores
             WHERE assessment_id = %s
             ORDER BY domain_id
         """, (assessment_id,))
@@ -119,8 +119,8 @@ def fetch_eligible_past_assessments(conn, current_id: int) -> list[int]:
     with conn.cursor() as cur:
         cur.execute("""
             SELECT DISTINCT a.id
-            FROM assessments a
-            JOIN recommendations r ON r.assessment_id = a.id
+            FROM dg_toolkit.assessments a
+            JOIN dg_toolkit.recommendations r ON r.assessment_id = a.id
             WHERE a.id != %s
               AND a.deleted_at IS NULL
               AND a.layer2_status = 'done'

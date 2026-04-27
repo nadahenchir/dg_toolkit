@@ -94,13 +94,11 @@ def run_layer2(assessment_id: int) -> None:
 
 
 def _trigger_layer3(assessment_id: int) -> None:
-    """
-    Trigger Layer 3 after Layer 2 completes.
-    Uncomment the import and call once layer3 is built.
-    """
-    logger.info(
-        f"[Layer2] → Layer 3 trigger placeholder "
-        f"for assessment {assessment_id}"
-    )
-    # from app.services.layer3 import run_layer3
-    # run_layer3(assessment_id)
+    """Auto-triggers Layer 3 after Layer 2 completes. Failure is logged but does not break Layer 2."""
+    try:
+        from app.services.layer3.runner import run_layer3
+        logger.info(f"[Layer2] → triggering Layer 3 for assessment {assessment_id}")
+        run_layer3(assessment_id)
+        logger.info(f"[Layer2] → Layer 3 complete for assessment {assessment_id}")
+    except Exception as e:
+        logger.error(f"[Layer2] → Layer 3 failed for assessment {assessment_id}: {e}")

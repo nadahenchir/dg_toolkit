@@ -9,10 +9,8 @@ On success, chains into layer1.run_layer1().
 """
 
 import logging
-import sys
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
 from datetime import datetime, timezone
-from connection import get_connection
+from app.db.connection import get_connection
 
 logger = logging.getLogger(__name__)
 

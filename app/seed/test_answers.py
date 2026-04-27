@@ -1,7 +1,5 @@
-import sys
 import random
-sys.path.insert(0, r'C:\Users\USER\OneDrive\Bureau\dg_toolkit\app\db')
-from connection import get_connection, get_cursor
+from app.db.connection import get_connection, get_cursor
 
 ASSESSMENT_ID = 2  # change if needed
 
@@ -50,7 +48,7 @@ def run():
 
             OPTION_SCORES = {
                 'Fully': 1.00, 'Mostly': 0.75, 'Partially': 0.50,
-                'Slightly': 0.25, 'Not': 0.00
+                'Slightly': 0.25, 'Not': 0.00, 'N.A': None
             }
 
             for a in answers:
