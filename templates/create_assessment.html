@@ -4,12 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>New Assessment — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/create_assessment.css') }}"/>
 </head>
 <body>
 
-<!-- ── Topbar ── -->
 <header class="topbar">
   <a class="topbar-logo" href="#">
     <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
@@ -18,14 +18,12 @@
 
 <main class="main">
 
-  <!-- Page header -->
   <div class="page-header">
     <p class="page-header-eyebrow">Data Governance Maturity Assessment</p>
     <h1>New Assessment</h1>
     <p>Set up the client organization, assign a consultant, and define domain targets.</p>
   </div>
 
-  <!-- Stepper -->
   <div class="stepper">
     <div class="step-item active" id="si-1">
       <div class="step-circle"><span class="step-num">1</span></div>
@@ -68,7 +66,7 @@
         <div class="field" id="f-industry">
           <label>Industry <span class="req">*</span></label>
           <select id="industry">
-            <option value="">Select industry…</option>
+            <option value="">Select industry...</option>
             <option>Banking</option>
             <option>Insurance</option>
             <option>Telecom</option>
@@ -91,7 +89,7 @@
         <div class="field" id="f-country">
           <label>Country <span class="req">*</span></label>
           <select id="country">
-            <option value="">Select country…</option>
+            <option value="">Select country...</option>
             <option>Tunisia</option>
             <option>Algeria</option>
             <option>Morocco</option>
@@ -108,7 +106,7 @@
         <div class="field">
           <label>Company Size</label>
           <select id="size-band">
-            <option value="">Select size…</option>
+            <option value="">Select size...</option>
             <option value="SME">SME</option>
             <option value="Large">Large</option>
             <option value="Enterprise">Enterprise</option>
@@ -127,7 +125,7 @@
             </button>
           </div>
           <textarea id="company-description"
-                    placeholder="Brief description of the organization's business and data landscape… or click Generate with AI to auto-fill."></textarea>
+                    placeholder="Brief description of the organization... or click Generate with AI to auto-fill."></textarea>
           <span class="error-msg">This field is required</span>
         </div>
 
@@ -172,7 +170,7 @@
       </div>
       <div>
         <h2>Domain Targets</h2>
-        <p>Set the desired maturity level (L1–L5) for each of the 11 DAMA domains.</p>
+        <p>Set the desired maturity level (L1 to L5) for each of the 11 DAMA domains.</p>
       </div>
     </div>
 
@@ -202,15 +200,14 @@
 
 </main>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Processing…</div>
+  <div class="loading-text" id="loading-text">Processing...</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/create_assessment.js') }}"></script>
 </body>

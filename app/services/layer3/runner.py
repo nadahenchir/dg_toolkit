@@ -11,6 +11,59 @@ SCHEMA = "dg_toolkit"
 OPENAI_MODEL = "gpt-4o-mini"
 
 
+def get_similar_org_implementations(cur, kpi_id: int, assessment_id: int, industry: str) -> list[dict]:
+    """
+    Fetches top rated implementations of this KPI from similar past organizations.
+    Filters by same industry first, falls back to all industries if fewer than 2 results.
+    """
+    def fetch(industry_filter):
+        industry_clause = "AND o.industry = %s" if industry_filter else ""
+        params = [kpi_id, assessment_id]
+        if industry_filter:
+            params.append(industry_filter)
+        params.append(3)
+
+        cur.execute(f"""
+            SELECT
+                o.industry,
+                o.size_band,
+                ks.maturity_level,
+                r.implementation_rating,
+                r.implementation_notes
+            FROM {SCHEMA}.recommendations r
+            JOIN {SCHEMA}.assessments a     ON a.id = r.assessment_id
+            JOIN {SCHEMA}.organizations o   ON o.id = a.organization_id
+            JOIN {SCHEMA}.kpi_scores ks     ON ks.assessment_id = r.assessment_id
+                                           AND ks.kpi_id = r.kpi_id
+            WHERE r.kpi_id = %s
+            AND r.assessment_id != %s
+            AND r.was_implemented = true
+            AND r.implementation_rating >= 4
+            AND r.implementation_notes IS NOT NULL
+            AND r.implementation_notes != ''
+            {industry_clause}
+            ORDER BY r.implementation_rating DESC
+            LIMIT %s
+        """, params)
+        return cur.fetchall()
+
+    rows = fetch(industry)
+    if len(rows) < 2:
+        rows = fetch(None)  # fallback: all industries
+
+    results = []
+    for row in rows:
+        ind, size, maturity, rating, notes = row
+        results.append({
+            "industry":  ind,
+            "size":      size,
+            "maturity":  maturity,
+            "rating":    rating,
+            "notes":     notes or ""
+        })
+    return results
+
+
 def run_layer3(assessment_id: int) -> dict:
     """
     Orchestrates the full RAG pipeline for all pending recommendations
@@ -18,10 +71,11 @@ def run_layer3(assessment_id: int) -> dict:
 
     For each recommendation where rag_status = 'pending':
         1. Retrieve top-5 relevant chunks from kb_chunks
-        2. Build prompt with org context + retrieved chunks
-        3. Generate rag_narrative via OpenAI
-        4. Write narrative back to recommendations table
-        5. Update rag_status to 'done' (or 'failed' on error)
+        2. Fetch similar org implementations (learning loop)
+        3. Build prompt with org context + retrieved chunks + similarity data
+        4. Generate rag_narrative via OpenAI
+        5. Write narrative back to recommendations table
+        6. Update rag_status to 'done' (or 'failed' on error)
 
     Returns a summary dict with counts of done/failed recommendations.
     """
@@ -61,13 +115,12 @@ def run_layer3(assessment_id: int) -> dict:
             conn.commit()
 
             # Load all pending recommendations for this assessment
-            # Joins action_library for action_text (not stored directly on recommendations)
             cur.execute(f"""
                 SELECT
                     r.id              AS rec_id,
                     r.kpi_id,
-                    k.name        AS kpi_name,
-                    d.name        AS domain_name,
+                    k.name            AS kpi_name,
+                    d.name            AS domain_name,
                     al.action_text,
                     ks.maturity_level
                 FROM {SCHEMA}.recommendations r
@@ -109,12 +162,15 @@ def run_layer3(assessment_id: int) -> dict:
                         top_k=5,
                         filters={"kpi_id": kpi_id}
                     )
-
-                    # Fallback: if no chunks found with kpi filter, retrieve without filter
                     if not chunks:
                         chunks = retrieve_chunks(query_text=query_text, top_k=5)
 
-                    # Step 2 — Build prompt
+                    # Step 2 — Fetch similar org implementations
+                    similar_orgs = get_similar_org_implementations(
+                        cur, kpi_id, assessment_id, industry
+                    )
+
+                    # Step 3 — Build prompt
                     org_context = {
                         "industry":       industry,
                         "size":           size_band,
@@ -126,19 +182,20 @@ def run_layer3(assessment_id: int) -> dict:
                         kpi_name=kpi_name,
                         action_text=action_text,
                         org_context=org_context,
-                        retrieved_chunks=chunks
+                        retrieved_chunks=chunks,
+                        similar_orgs=similar_orgs
                     )
 
-                    # Step 3 — Generate narrative
+                    # Step 4 — Generate narrative
                     response = client.chat.completions.create(
                         model=OPENAI_MODEL,
                         messages=messages,
                         temperature=0.7,
-                        max_tokens=600
+                        max_tokens=450
                     )
                     narrative = response.choices[0].message.content.strip()
 
-                    # Step 4 — Write back to DB
+                    # Step 5 — Write back to DB
                     cur.execute(f"""
                         UPDATE {SCHEMA}.recommendations
                         SET rag_narrative = %s,
@@ -175,7 +232,6 @@ def run_layer3(assessment_id: int) -> dict:
             return summary
 
     except Exception as e:
-        # Mark assessment as failed if pipeline crashes entirely
         try:
             conn2 = get_connection()
             with conn2.cursor() as c:

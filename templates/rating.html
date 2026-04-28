@@ -4,12 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rate Recommendations — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/rating.css') }}"/>
 </head>
 <body>
 
-<!-- ── Topbar ── -->
 <header class="topbar">
   <a class="topbar-logo" href="#">
     <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
@@ -20,30 +20,25 @@
   </div>
 </header>
 
-<!-- Loading screen -->
-<div id="loading-screen" style="height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+<div id="loading-screen" style="height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
   <div class="spinner"></div>
-  <p style="color:var(--text-muted);font-size:13px;font-weight:700">Loading recommendations…</p>
+  <p style="color:var(--text-muted);font-family:'Oswald',Arial,sans-serif;font-size:13px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;">Loading recommendations...</p>
 </div>
 
-<!-- Rating content -->
 <div id="rating-content" class="main" style="display:none;flex-direction:column;align-items:center;">
 
-  <!-- Page header -->
   <div class="page-header">
     <div class="page-header-eyebrow">Post-Engagement Review</div>
-    <h1>Rate Recommendations — <span id="org-name"></span></h1>
+    <h1>Rate Recommendations <span id="org-name"></span></h1>
     <p>After implementing recommendations, rate their effectiveness to improve future assessments.</p>
   </div>
 
-  <!-- Info banner -->
   <div class="info-banner">
-    <strong>Why rate?</strong> Your ratings feed the learning loop — highly-rated recommendations
+    <strong>Why rate?</strong> Your ratings feed the learning loop. Highly-rated recommendations
     get prioritized in similar future assessments through the similarity engine.
     You only need to rate recommendations that were actually implemented.
   </div>
 
-  <!-- Progress -->
   <div class="rating-progress">
     <div class="rating-progress-label">
       <span id="progress-label">0 / 0 rated</span>
@@ -54,20 +49,17 @@
     </div>
   </div>
 
-  <!-- Done banner -->
   <div class="done-banner" id="done-banner">
-    <div style="font-size:22px;color:var(--success)">✓</div>
+    <div style="font-size:24px;color:var(--success)">&#10003;</div>
     <div class="done-banner-text">
       <h3>All recommendations rated</h3>
-      <p>Thank you — your feedback has been saved and will improve future assessments.</p>
+      <p>Thank you. Your feedback has been saved and will improve future assessments.</p>
     </div>
   </div>
 
-  <!-- Domain sections -->
-  <div id="domains-container" style="width:100%;max-width:880px;"></div>
+  <div id="domains-container" style="width:100%;max-width:900px;"></div>
 
-  <!-- Back to results -->
-  <div style="width:100%;max-width:880px;display:flex;justify-content:flex-start;margin-top:8px;">
+  <div style="width:100%;max-width:900px;display:flex;justify-content:flex-start;margin-top:8px;">
     <button class="btn btn-ghost" style="font-size:12px;padding:8px 16px"
             onclick="window.location.href='/results?assessment_id=' + assessmentId">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -79,13 +71,12 @@
 
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/rating.js') }}"></script>
 <script>
-  /* Mirror org name into topbar once rating.js sets #org-name */
   const _orgEl     = document.getElementById('org-name');
   const _topbarOrg = document.getElementById('topbar-org-name');
   new MutationObserver(() => {

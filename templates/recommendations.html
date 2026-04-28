@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recommendations — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendations.css') }}"/>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="topbar-logo" href="#">
+    <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
+  </a>
+  <div class="topbar-right">
+    <div class="topbar-divider"></div>
+    <span class="topbar-org" id="topbar-org-name"></span>
+  </div>
+</header>
+
+<div id="loading-screen" class="loading-screen" style="height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+  <div class="spinner"></div>
+  <p>Loading recommendations...</p>
+</div>
+
+<div id="rec-content" class="main" style="display:none;">
+
+  <div class="page-header">
+    <div class="page-header-eyebrow">Data Governance Maturity Assessment</div>
+    <div class="page-header-row">
+      <h1>Recommendations <span id="org-name"></span></h1>
+      <div class="page-header-meta">
+        <span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M1.5 10.5c0-2.485 2.015-4.5 4.5-4.5s4.5 2.015 4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span id="consultant-name"></span>
+        </span>
+        <span id="rag-ready-badge" style="display:none">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="6" r="5" stroke="#2E7D32" stroke-width="1.2"/>
+            <path d="M3.5 6l2 2 3-3" stroke="#2E7D32" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="color:#2E7D32;font-weight:700;">AI Narratives Ready</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rec-summary-bar">
+    <div class="rec-summary-item">
+      <span class="rec-summary-value" id="total-count">-</span>
+      <span class="rec-summary-label">Total</span>
+    </div>
+    <div class="rec-summary-divider"></div>
+    <div class="rec-summary-item">
+      <span class="rec-summary-value quick-win" id="qw-count">-</span>
+      <span class="rec-summary-label">Quick Wins</span>
+    </div>
+    <div class="rec-summary-item">
+      <span class="rec-summary-value fill-in" id="fi-count">-</span>
+      <span class="rec-summary-label">Fill In</span>
+    </div>
+    <div class="rec-summary-item">
+      <span class="rec-summary-value strategic" id="st-count">-</span>
+      <span class="rec-summary-label">Strategic</span>
+    </div>
+    <div class="rec-summary-divider"></div>
+  </div>
+
+  <div class="filters-bar">
+    <select class="filter-select" id="filter-domain" onchange="applyFilters()">
+      <option value="">All Domains</option>
+    </select>
+    <select class="filter-select" id="filter-category" onchange="applyFilters()">
+      <option value="">All Categories</option>
+      <option value="Quick Win">Quick Win</option>
+      <option value="Strategic">Strategic</option>
+      <option value="Fill In">Fill In</option>
+    </select>
+    <select class="filter-select" id="filter-impact" onchange="applyFilters()">
+      <option value="">All Impact</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+    <select class="filter-select" id="filter-effort" onchange="applyFilters()">
+      <option value="">All Effort</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+    <button class="filter-reset" id="filter-reset" onclick="resetFilters()" style="display:none">
+      Clear Filters
+    </button>
+  </div>
+
+  <div id="no-results" class="no-results" style="display:none">
+    No recommendations match the selected filters.
+  </div>
+
+  <div class="recommendations-grid" id="recommendations-grid"></div>
+
+  <div class="actions-row">
+    <button class="btn btn-ghost" style="font-size:12px;padding:9px 18px" onclick="goBack()">
+      Back to Results
+    </button>
+    <button class="btn btn-primary" style="font-size:12px;padding:9px 18px"
+            onclick="window.location.href='/rating?assessment_id=' + assessmentId">
+      Rate Recommendations
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M4 2l5 4.5L4 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/recommendations.js') }}"></script>
+<script>
+  const _orgEl     = document.getElementById('org-name');
+  const _topbarOrg = document.getElementById('topbar-org-name');
+  new MutationObserver(() => {
+    _topbarOrg.textContent = _orgEl.textContent;
+  }).observe(_orgEl, { childList: true, characterData: true, subtree: true });
+</script>
+</body>
+</html>

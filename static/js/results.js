@@ -15,7 +15,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!assessmentId) { showError('No assessment ID provided.'); return; }
 
   try {
-    // Load assessment info + scores in parallel
     const [assessment, scores] = await Promise.all([
       apiFetch(`/assessments/${assessmentId}`),
       apiFetch(`/assessments/${assessmentId}/scores`),
@@ -39,18 +38,18 @@ function render(assessment, scores) {
   const avgGap    = (domains.reduce((s, d) => s + d.gap, 0) / domains.length).toFixed(1);
 
   // Page header
-  document.getElementById('org-name').textContent    = assessment.organization_name;
-  document.getElementById('consultant-name').textContent = assessment.consultant_name;
-  document.getElementById('scored-at').textContent   =
+  document.getElementById('org-name').textContent         = assessment.organization_name;
+  document.getElementById('consultant-name').textContent  = assessment.consultant_name;
+  document.getElementById('scored-at').textContent        =
     new Date(overall.computed_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 
   // Summary cards
-  document.getElementById('overall-score').textContent  = pct + '%';
-  document.getElementById('overall-level').textContent  = 'L' + level;
-  document.getElementById('level-label').textContent    = MATURITY_LABELS[level] || '';
+  document.getElementById('overall-score').textContent    = pct + '%';
+  document.getElementById('overall-level').textContent    = 'L' + level;
+  document.getElementById('level-label').textContent      = MATURITY_LABELS[level] || '';
   document.getElementById('domains-at-target').textContent = `${domainsAt} / ${domains.length}`;
-  document.getElementById('avg-gap').textContent        = avgGap;
-  document.getElementById('domains-scored').textContent = overall.domains_scored;
+  document.getElementById('avg-gap').textContent          = avgGap;
+  document.getElementById('domains-scored').textContent   = overall.domains_scored;
 
   // Domain cards
   renderDomains(domains, scores.kpis);
@@ -69,14 +68,16 @@ function renderDomains(domains, kpis) {
   grid.innerHTML = '';
 
   domains.forEach(d => {
-    const domainKpis = kpis.filter(k => k.domain_id === d.domain_id);
+    // Only show non-excluded KPIs
+    const domainKpis = kpis.filter(k => k.domain_id === d.domain_id && !k.is_excluded);
 
     const section = document.createElement('div');
     section.className = 'domain-section';
 
-    const onTarget = d.gap === 0;
+    const tableId = `kpi-table-${d.domain_id}`;
+
     section.innerHTML = `
-      <div class="domain-section-header">
+      <div class="domain-section-header" onclick="toggleDomain('${tableId}', this)" style="cursor:pointer;">
         <div class="domain-section-left">
           <span class="domain-section-name">${d.domain_name}</span>
           <span class="level-badge current">L${d.maturity_level}</span>
@@ -84,36 +85,54 @@ function renderDomains(domains, kpis) {
             ${d.gap === 0 ? '✓ On target' : `Gap ${d.gap}`}
           </span>
         </div>
-        <div class="domain-section-right">
-          Target L${d.target_level} · ${Math.round(d.raw_score * 100)}% · ${d.kpis_scored} KPIs
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="domain-section-right">
+            Target L${d.target_level} · ${Math.round(d.raw_score * 100)}% · ${domainKpis.length} KPIs
+          </div>
+          <svg class="domain-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" style="transition:transform 0.2s;flex-shrink:0;">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
       </div>
-      <table class="kpi-table">
-        <thead>
-          <tr>
-            <th>KPI</th>
-            <th>Score</th>
-            <th>Level</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${domainKpis.map(k => `
-            <tr class="${k.is_excluded ? 'excluded' : ''}">
-              <td class="kpi-name-cell">${k.kpi_name}${k.is_excluded ? ' <span class="excluded-tag">Excluded</span>' : ''}</td>
-              <td>
-                <div class="kpi-mini-bar-wrap">
-                  <div class="kpi-mini-bar" style="width:${Math.round(k.raw_score * 100)}%"></div>
-                  <span class="kpi-mini-pct">${Math.round(k.raw_score * 100)}%</span>
-                </div>
-              </td>
-              <td><span class="level-badge current ml-${k.maturity_level}">L${k.maturity_level}</span></td>
+      <div id="${tableId}" style="display:none;">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th>KPI</th>
+              <th>Score</th>
+              <th>Level</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${domainKpis.map(k => `
+              <tr>
+                <td class="kpi-name-cell">${k.kpi_name}</td>
+                <td>
+                  <div class="kpi-mini-bar-wrap">
+                    <div class="kpi-mini-bar" style="width:${Math.round(k.raw_score * 100)}%"></div>
+                    <span class="kpi-mini-pct">${Math.round(k.raw_score * 100)}%</span>
+                  </div>
+                </td>
+                <td><span class="level-badge current ml-${k.maturity_level}">L${k.maturity_level}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
+
     grid.appendChild(section);
   });
+}
+
+/* ── Toggle domain expand/collapse ── */
+function toggleDomain(tableId, header) {
+  const table   = document.getElementById(tableId);
+  const chevron = header.querySelector('.domain-chevron');
+  const isOpen  = table.style.display !== 'none';
+
+  table.style.display  = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
 
 /* ── Radar chart ── */

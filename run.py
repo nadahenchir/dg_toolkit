@@ -12,7 +12,7 @@ from app.routes.generate import generate_bp
 app = Flask(__name__)
 CORS(app)
 
-ALLOWED_PAGES = {'create_assessment', 'dashboard', 'index', 'questionnaire', 'results', 'rating'}
+ALLOWED_PAGES = {'create_assessment', 'dashboard', 'index', 'questionnaire', 'results', 'rating', 'recommendations'}
 
 @app.route('/')
 @app.route('/<page>')

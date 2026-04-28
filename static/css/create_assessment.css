@@ -7,56 +7,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 24px 80px;
+  padding: 48px 24px 80px;
 }
 
-/* ── Page header ── */
+/* Page header */
 .page-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
   animation: fadeUp 0.4s ease both;
 }
-
-.page-header-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--kpmg-blue-light);
-  margin-bottom: 8px;
-}
-
 .page-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--kpmg-blue);
-  line-height: 1.2;
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  font-size: 36px;
+  margin-bottom: 10px;
 }
-
 .page-header p {
   color: var(--text-muted);
   font-size: 14px;
 }
 
-/* ── Stepper ── */
+/* Stepper */
 .stepper {
   display: flex;
   align-items: center;
-  margin-bottom: 32px;
-  animation: fadeUp 0.4s 0.08s ease both;
+  margin-bottom: 36px;
+  animation: fadeUp 0.4s 0.06s ease both;
 }
-
 .step-item {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .step-circle {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 2px solid var(--border-strong);
   display: flex;
@@ -68,36 +51,34 @@
   background: var(--bg-white);
   transition: all 0.25s ease;
 }
-
 .step-item.active .step-circle {
   border-color: var(--kpmg-blue);
   background: var(--kpmg-blue);
   color: white;
 }
-
 .step-item.done .step-circle {
   border-color: var(--success);
   background: var(--success);
   color: white;
 }
-
 .step-item.done .step-num { display: none; }
-.step-item.done .step-circle::after { content: '✓'; font-size: 12px; }
-
+.step-item.done .step-circle::after { content: '\2713'; font-size: 13px; }
 .step-label {
+  font-family: 'Oswald', Arial, sans-serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: color 0.25s;
 }
 .step-item.active .step-label { color: var(--kpmg-blue); }
 .step-item.done   .step-label { color: var(--success); }
-
 .step-connector {
-  width: 56px;
+  width: 60px;
   height: 2px;
   background: var(--border);
-  margin: 0 6px;
+  margin: 0 8px;
   position: relative;
   overflow: hidden;
 }
@@ -109,20 +90,19 @@
   animation: fillLine 0.35s ease both;
 }
 
-/* ── Card animation ── */
-.card { animation: fadeUp 0.4s 0.12s ease both; }
+/* Card animation */
+.card { animation: fadeUp 0.4s 0.1s ease both; }
 
-/* ── Form grid ── */
+/* Form grid */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 28px;
+  gap: 22px 32px;
 }
 .span-2 { grid-column: span 2; }
+.section-divider { grid-column: span 2; margin: 8px 0 2px; }
 
-.section-divider { grid-column: span 2; margin: 6px 0 2px; }
-
-/* ── Field header (description + generate) ── */
+/* Field header */
 .field-header {
   display: flex;
   align-items: center;
@@ -131,28 +111,25 @@
 }
 .field-header label { margin-bottom: 0; }
 
-/* ── Generate button ── */
+/* Generate button */
 .btn-generate {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius);
   cursor: pointer;
-  font-family: Arial, sans-serif;
+  font-family: 'Oswald', Arial, sans-serif;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   background: transparent;
   border: 1.5px solid var(--kpmg-blue-light);
   color: var(--kpmg-blue-light);
   transition: all 0.15s;
 }
-.btn-generate:hover {
-  background: var(--kpmg-blue-light);
-  color: white;
-}
+.btn-generate:hover { background: var(--kpmg-blue-light); color: white; }
 .btn-generate:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -161,32 +138,31 @@
 }
 .btn-generate.generating svg { animation: spin 0.7s linear infinite; }
 
-/* ── Industry other ── */
+/* Industry other */
 #industry-other-wrap { display: none; }
 
-/* ── Step 2 ── */
+/* Step 2 */
 #step2 { display: none; }
 
 .domains-hint {
   font-size: 12px;
   color: var(--text-muted);
-  margin-bottom: 20px;
-  padding: 11px 14px;
+  margin-bottom: 22px;
+  padding: 12px 16px;
   background: #EEF4FF;
   border: 1px solid #C5D7F5;
-  border-left: 3px solid var(--kpmg-blue);
+  border-left: 4px solid var(--kpmg-blue);
   border-radius: var(--radius);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 .domains-hint strong { color: var(--kpmg-blue); }
 
-/* ── Domains grid ── */
+/* Domains grid */
 .domains-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
 .domain-card {
   background: var(--bg);
   border: 1.5px solid var(--border);
@@ -199,8 +175,6 @@
 }
 .domain-card:hover    { border-color: var(--kpmg-blue-mid); background: var(--bg-white); }
 .domain-card.targeted { border-color: var(--kpmg-blue); background: #EEF4FF; }
-.domain-card.targeted:hover { border-color: var(--kpmg-blue-mid); }
-
 .domain-card-top {
   display: flex;
   align-items: flex-start;
@@ -214,33 +188,35 @@
   line-height: 1.4;
 }
 .domain-id {
+  font-family: 'Oswald', Arial, sans-serif;
   font-size: 10px;
   color: var(--text-muted);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   background: var(--surface2);
   border: 1px solid var(--border);
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-/* ── Level selector ── */
+/* Level selector */
 .level-selector { display: flex; gap: 4px; }
 .level-btn {
   flex: 1;
-  padding: 5px 0;
+  padding: 6px 0;
   background: var(--bg-white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 700;
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   cursor: pointer;
   text-align: center;
   transition: all 0.12s;
-  font-family: Arial, sans-serif;
 }
 .level-btn:hover { border-color: var(--kpmg-blue-mid); color: var(--kpmg-blue); }
 .level-btn.active {
@@ -249,7 +225,6 @@
   color: white;
 }
 
-/* ── Responsive ── */
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .span-2 { grid-column: span 1; }

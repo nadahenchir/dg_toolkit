@@ -4,39 +4,35 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Questionnaire — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/questionnaire.css') }}"/>
 </head>
 <body>
 
-<!-- Loading screen -->
 <div id="loading-screen" class="loading-screen" style="height:100vh;display:flex;">
   <div class="spinner"></div>
-  <p>Loading questionnaire…</p>
+  <p>Loading questionnaire...</p>
 </div>
 
-<!-- Main app layout -->
 <div id="q-content" class="app-layout" style="display:none;flex-direction:column;">
 
-  <!-- ── Topbar ── -->
   <header class="topbar" style="position:relative;z-index:100;flex-shrink:0;">
     <a class="topbar-logo" href="#">
       <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
     </a>
     <div class="topbar-right">
       <div class="topbar-divider"></div>
-      <span class="topbar-org" id="topbar-org-name">Loading…</span>
+      <span class="topbar-org" id="topbar-org-name">Loading...</span>
     </div>
   </header>
 
-  <!-- ── App body (sidebar + content) ── -->
   <div style="display:flex;flex:1;overflow:hidden;">
 
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-eyebrow">Data Governance Maturity</div>
-        <div class="sidebar-org" id="sidebar-org">Loading…</div>
+        <div class="sidebar-org" id="sidebar-org">Loading...</div>
       </div>
 
       <div class="overall-progress">
@@ -52,24 +48,20 @@
       <div class="domain-list" id="domain-list"></div>
     </aside>
 
-    <!-- Main content -->
     <div class="main-content">
 
-      <!-- Sub-topbar (domain context) -->
       <div class="q-topbar">
         <div class="q-topbar-left">
           <div class="q-domain-badge" id="q-domain-badge">D01</div>
-          <div class="q-domain-label" id="q-domain-label">Loading…</div>
+          <div class="q-domain-label" id="q-domain-label">Loading...</div>
         </div>
         <div class="q-topbar-right">
           <div class="save-status" id="save-status"></div>
         </div>
       </div>
 
-      <!-- KPI scroll area -->
       <div class="kpi-area" id="kpi-area"></div>
 
-      <!-- Bottom nav -->
       <div class="bottom-nav">
         <button class="btn btn-ghost" id="nav-prev" onclick="navDomain(-1)" style="font-size:12px;padding:8px 16px">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -90,20 +82,17 @@
   </div>
 </div>
 
-<!-- Loading overlay (submit) -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Processing…</div>
+  <div class="loading-text" id="loading-text">Processing...</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
-
 <script>
-  /* Mirror sidebar org name into the topbar once questionnaire.js sets it */
   const _sidebarOrg = document.getElementById('sidebar-org');
   const _topbarOrg  = document.getElementById('topbar-org-name');
   new MutationObserver(() => {
