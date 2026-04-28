@@ -15,6 +15,16 @@
     <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
   </a>
   <div class="topbar-right">
+    <div class="topbar-search" id="topbar-search">
+      <input class="topbar-search-input" id="search-input" type="text" placeholder="Search assessments..."
+        autocomplete="off" oninput="handleSearch(this.value)"
+        onblur="closeSearchDropdown()" onfocus="if(this.value.trim()) openSearchDropdown()"/>
+      <svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M9.5 9.5l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <div class="topbar-search-dropdown" id="search-dropdown"></div>
+    </div>
     <div class="topbar-divider"></div>
     <span class="topbar-org" id="topbar-org-name"></span>
   </div>
@@ -130,6 +140,63 @@
   new MutationObserver(() => {
     _topbarOrg.textContent = _orgEl.textContent;
   }).observe(_orgEl, { childList: true, characterData: true, subtree: true });
+</script>
+<script>
+let searchTimer = null;
+ 
+function handleSearch(val) {
+  clearTimeout(searchTimer);
+  const q = val.trim();
+  if (!q) { closeSearchDropdown(); return; }
+  searchTimer = setTimeout(() => fetchSearchResults(q), 280);
+}
+ 
+async function fetchSearchResults(q) {
+  try {
+    const res = await fetch(`/api/assessments/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    renderSearchResults(data);
+  } catch (e) {
+    closeSearchDropdown();
+  }
+}
+ 
+function renderSearchResults(results) {
+  const dropdown = document.getElementById('search-dropdown');
+  if (!results.length) {
+    dropdown.innerHTML = '<div class="search-no-results">No assessments found</div>';
+    openSearchDropdown();
+    return;
+  }
+ 
+  dropdown.innerHTML = results.map(r => {
+    const status = r.status || 'draft';
+    const date   = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '';
+    const target = status === 'complete' ? `/results?assessment_id=${r.id}` : `/questionnaire?assessment_id=${r.id}`;
+    return `
+      <a class="search-result-item" href="${target}">
+        <div>
+          <div class="search-result-name">${r.organization_name}</div>
+          <div class="search-result-meta">${r.consultant_name} &middot; ${date}</div>
+        </div>
+        <span class="search-result-status ${status}">${status.replace('_', ' ')}</span>
+      </a>
+    `;
+  }).join('');
+ 
+  openSearchDropdown();
+}
+ 
+function openSearchDropdown() {
+  document.getElementById('search-dropdown').classList.add('open');
+}
+ 
+function closeSearchDropdown() {
+  // Delay to allow click on result
+  setTimeout(() => {
+    document.getElementById('search-dropdown').classList.remove('open');
+  }, 180);
+}
 </script>
 </body>
 </html>

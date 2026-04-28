@@ -17,7 +17,7 @@ const DOMAIN_FALLBACK = [
 ];
 
 let domains = [];
-let targets = {}; // { domain_id: level }
+let targets = {};
 
 /* ── Industry "Other" toggle ── */
 document.getElementById('industry').addEventListener('change', function () {
@@ -44,7 +44,7 @@ async function generateDescription() {
   const btnText = document.getElementById('gen-btn-text');
   btn.disabled  = true;
   btn.classList.add('generating');
-  btnText.textContent = 'Generating…';
+  btnText.textContent = 'Generating...';
 
   try {
     const data = await apiFetch('/generate/organization-description', {
@@ -52,7 +52,7 @@ async function generateDescription() {
       body: JSON.stringify({ name, industry, country: country || null, size_band: size || null }),
     });
     document.getElementById('company-description').value = data.description;
-    toast('Description generated — feel free to edit it.', 'success');
+    toast('Description generated. Feel free to edit it.', 'success');
   } catch (err) {
     toast(err.message || 'Could not generate description.', 'error');
   } finally {
@@ -66,12 +66,12 @@ async function generateDescription() {
 function validate1() {
   let ok = true;
   const rules = [
-    { el: 'org-name',           fid: 'f-org-name',           fn: v => v.trim() },
-    { el: 'industry',           fid: 'f-industry',            fn: v => v },
-    { el: 'country',            fid: 'f-country',             fn: v => v },
-    { el: 'company-description',fid: 'f-company-description', fn: v => v.trim() },
-    { el: 'con-name',           fid: 'f-con-name',            fn: v => v.trim() },
-    { el: 'con-email',          fid: 'f-con-email',           fn: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { el: 'org-name',            fid: 'f-org-name',           fn: v => v.trim() },
+    { el: 'industry',            fid: 'f-industry',           fn: v => v },
+    { el: 'country',             fid: 'f-country',            fn: v => v },
+    { el: 'company-description', fid: 'f-company-description',fn: v => v.trim() },
+    { el: 'con-name',            fid: 'f-con-name',           fn: v => v.trim() },
+    { el: 'con-email',           fid: 'f-con-email',          fn: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
   ];
   rules.forEach(({ el, fid, fn }) => {
     const f = document.getElementById(fid);
@@ -161,7 +161,7 @@ async function submitAll() {
   const isOther = document.getElementById('industry').value === 'Other';
 
   try {
-    loading(true, 'Creating organization…');
+    loading(true, 'Creating organization...');
     const org = await apiFetch('/organizations', {
       method: 'POST',
       body: JSON.stringify({
@@ -174,7 +174,7 @@ async function submitAll() {
       }),
     });
 
-    loading(true, 'Creating consultant…');
+    loading(true, 'Creating consultant...');
     const consultant = await apiFetch('/consultants', {
       method: 'POST',
       body: JSON.stringify({
@@ -183,13 +183,13 @@ async function submitAll() {
       }),
     });
 
-    loading(true, 'Creating assessment…');
+    loading(true, 'Creating assessment...');
     const assessment = await apiFetch('/assessments', {
       method: 'POST',
       body: JSON.stringify({ organization_id: org.id, consultant_id: consultant.id }),
     });
 
-    loading(true, 'Setting domain targets…');
+    loading(true, 'Setting domain targets...');
     await apiFetch(`/assessments/${assessment.id}/targets`, {
       method: 'POST',
       body: JSON.stringify({
@@ -197,11 +197,11 @@ async function submitAll() {
       }),
     });
 
-    loading(true, 'Starting assessment…');
+    loading(true, 'Starting assessment...');
     await apiFetch(`/assessments/${assessment.id}/start`, { method: 'POST' });
 
-    loading(true, 'Launching questionnaire…');
-    toast('Assessment created — launching questionnaire!', 'success');
+    loading(true, 'Launching questionnaire...');
+    toast('Assessment created. Launching questionnaire!', 'success');
     setTimeout(() => {
       window.location.href = `/questionnaire?assessment_id=${assessment.id}`;
     }, 900);

@@ -91,7 +91,7 @@ h1, h2, h3, h4, h5, h6,
   flex-shrink: 0;
 }
 .topbar-logo img {
-  height: 30px;
+  height: 55px;
   width: auto;
   display: block;
   /* Force white version using CSS filter */
@@ -115,6 +115,99 @@ h1, h2, h3, h4, h5, h6,
   width: 1px;
   height: 18px;
   background: rgba(255,255,255,0.25);
+}
+
+/* ── Topbar Search ── */
+.topbar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.topbar-search-input {
+  height: 32px;
+  width: 220px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  border-radius: 20px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  padding: 0 36px 0 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+.topbar-search-input::placeholder { color: rgba(255,255,255,0.45); }
+.topbar-search-input:focus {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.45);
+  width: 280px;
+}
+.topbar-search-icon {
+  position: absolute;
+  right: 11px;
+  color: rgba(255,255,255,0.45);
+  pointer-events: none;
+}
+
+/* Search dropdown */
+.topbar-search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 340px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  overflow: hidden;
+  display: none;
+  z-index: 999;
+  animation: fadeUp 0.15s ease both;
+}
+.topbar-search-dropdown.open { display: block; }
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  text-decoration: none;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--surface2); }
+
+.search-result-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kpmg-blue);
+  margin-bottom: 2px;
+}
+.search-result-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.search-result-status {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+.search-result-status.complete { background: var(--success-bg); color: var(--success); }
+.search-result-status.in_progress { background: #EEF4FF; color: var(--kpmg-blue); }
+.search-result-status.draft { background: var(--surface2); color: var(--text-muted); }
+
+.search-no-results {
+  padding: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
 }
 .topbar-tag {
   font-size: 11px;

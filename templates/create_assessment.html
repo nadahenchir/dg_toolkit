@@ -14,56 +14,72 @@
   <a class="topbar-logo" href="#">
     <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
   </a>
+  <div class="topbar-search" id="topbar-search">
+  <input
+    class="topbar-search-input"
+    id="search-input"
+    type="text"
+    placeholder="Search assessments..."
+    autocomplete="off"
+    oninput="handleSearch(this.value)"
+    onblur="closeSearchDropdown()"
+    onfocus="if(this.value.trim()) openSearchDropdown()"
+  />
+  <svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M9.5 9.5l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+  <div class="topbar-search-dropdown" id="search-dropdown"></div>
+</div> 
 </header>
 
-<main class="main">
+<main class="ca-main">
 
-  <div class="page-header">
-    <p class="page-header-eyebrow">Data Governance Maturity Assessment</p>
-    <h1>New Assessment</h1>
-    <p>Set up the client organization, assign a consultant, and define domain targets.</p>
-  </div>
+  <!-- Left column: branding + stepper -->
+  <div class="ca-sidebar">
+    <div class="ca-sidebar-inner">
+      <div class="ca-sidebar-eyebrow">Data Governance</div>
+      <h1 class="ca-sidebar-title">New<br>Assessment</h1>
+      <p class="ca-sidebar-sub">Set up the client organization, assign a consultant, and define maturity targets.</p>
 
-  <div class="stepper">
-    <div class="step-item active" id="si-1">
-      <div class="step-circle"><span class="step-num">1</span></div>
-      <span class="step-label">Organization &amp; Consultant</span>
-    </div>
-    <div class="step-connector" id="conn-1"></div>
-    <div class="step-item" id="si-2">
-      <div class="step-circle"><span class="step-num">2</span></div>
-      <span class="step-label">Domain Targets</span>
-    </div>
-  </div>
-
-  <!-- STEP 1 -->
-  <div class="card" id="step1">
-    <div class="card-header">
-      <div class="card-header-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <rect x="2" y="5" width="14" height="11" rx="1.5" stroke="white" stroke-width="1.5"/>
-          <path d="M6 5V4a3 3 0 016 0v1" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M6 10h6M6 13h4" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div>
-        <h2>Organization &amp; Consultant</h2>
-        <p>Enter the client organization details and the lead consultant for this engagement.</p>
+      <div class="ca-stepper">
+        <div class="ca-step active" id="si-1">
+          <div class="ca-step-circle"><span class="ca-step-num">1</span></div>
+          <div class="ca-step-info">
+            <div class="ca-step-label">Organization &amp; Consultant</div>
+            <div class="ca-step-desc">Client details and lead consultant</div>
+          </div>
+        </div>
+        <div class="ca-step-line" id="conn-1"></div>
+        <div class="ca-step" id="si-2">
+          <div class="ca-step-circle"><span class="ca-step-num">2</span></div>
+          <div class="ca-step-info">
+            <div class="ca-step-label">Domain Targets</div>
+            <div class="ca-step-desc">Set maturity goals per domain</div>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="card-body">
-      <div class="form-grid">
+  <!-- Right column: form -->
+  <div class="ca-form-panel">
 
-        <div class="section-divider span-2"><span>Client Organization</span></div>
+    <!-- STEP 1 -->
+    <div class="ca-form-content" id="step1">
 
-        <div class="field" id="f-org-name">
+      <div class="ca-section-title">
+        <span>Client Organization</span>
+      </div>
+
+      <div class="ca-grid">
+        <div class="ca-field" id="f-org-name">
           <label>Organization Name <span class="req">*</span></label>
           <input type="text" id="org-name" placeholder="e.g. Banque de Tunisie"/>
           <span class="error-msg">This field is required</span>
         </div>
 
-        <div class="field" id="f-industry">
+        <div class="ca-field" id="f-industry">
           <label>Industry <span class="req">*</span></label>
           <select id="industry">
             <option value="">Select industry...</option>
@@ -80,13 +96,13 @@
           <span class="error-msg">This field is required</span>
         </div>
 
-        <div class="field" id="industry-other-wrap">
+        <div class="ca-field" id="industry-other-wrap">
           <label>Specify Industry <span class="req">*</span></label>
           <input type="text" id="industry-other" placeholder="e.g. Logistics"/>
           <span class="error-msg">This field is required</span>
         </div>
 
-        <div class="field" id="f-country">
+        <div class="ca-field" id="f-country">
           <label>Country <span class="req">*</span></label>
           <select id="country">
             <option value="">Select country...</option>
@@ -103,7 +119,7 @@
           <span class="error-msg">This field is required</span>
         </div>
 
-        <div class="field">
+        <div class="ca-field">
           <label>Company Size</label>
           <select id="size-band">
             <option value="">Select size...</option>
@@ -113,8 +129,8 @@
           </select>
         </div>
 
-        <div class="field span-2" id="f-company-description">
-          <div class="field-header">
+        <div class="ca-field ca-span-2" id="f-company-description">
+          <div class="ca-field-header">
             <label>Company Description <span class="req">*</span></label>
             <button class="btn-generate" id="gen-btn" onclick="generateDescription()" type="button">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -124,80 +140,70 @@
               <span id="gen-btn-text">Generate with AI</span>
             </button>
           </div>
-          <textarea id="company-description"
-                    placeholder="Brief description of the organization... or click Generate with AI to auto-fill."></textarea>
+          <textarea id="company-description" placeholder="Brief description of the organization... or click Generate with AI."></textarea>
           <span class="error-msg">This field is required</span>
         </div>
+      </div>
 
-        <div class="section-divider span-2"><span>Lead Consultant</span></div>
+      <div class="ca-section-title" style="margin-top:32px;">
+        <span>Lead Consultant</span>
+      </div>
 
-        <div class="field" id="f-con-name">
+      <div class="ca-grid">
+        <div class="ca-field" id="f-con-name">
           <label>Full Name <span class="req">*</span></label>
           <input type="text" id="con-name" placeholder="e.g. Sami Ben Ali"/>
           <span class="error-msg">This field is required</span>
         </div>
 
-        <div class="field" id="f-con-email">
+        <div class="ca-field" id="f-con-email">
           <label>Email <span class="req">*</span></label>
           <input type="email" id="con-email" placeholder="sami.benali@kpmg.com"/>
           <span class="error-msg">A valid email is required</span>
         </div>
+      </div>
 
+      <div class="ca-footer">
+        <span class="ca-required-note">Fields marked <span style="color:var(--error-color)">*</span> are required</span>
+        <button class="btn btn-primary" onclick="goStep2()">
+          Continue to Targets
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M3 6.5h7M7 3l3.5 3.5L7 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <div class="card-footer">
-      <span style="font-size:12px;color:var(--text-muted)">
-        Fields marked <span style="color:var(--error-color)">*</span> are required
-      </span>
-      <button class="btn btn-primary" onclick="goStep2()">
-        Continue to Targets
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M3 6.5h7M7 3l3.5 3.5L7 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- STEP 2 -->
+    <div class="ca-form-content" id="step2" style="display:none;">
+
+      <div class="ca-hint">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px">
+          <circle cx="7" cy="7" r="6" stroke="var(--kpmg-blue)" stroke-width="1.3"/>
+          <path d="M7 6v4M7 4.5v.5" stroke="var(--kpmg-blue)" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
-      </button>
+        For each domain, select the maturity level the client aims to reach. Default is <strong>L3</strong>.
+      </div>
+
+      <div class="ca-domains-grid" id="domains-grid"></div>
+
+      <div class="ca-footer">
+        <button class="btn btn-ghost" onclick="goStep1()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M10 6.5H3M6 3L2.5 6.5 6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submitAll()">
+          Launch Assessment
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M3 6.5h7M7 3l3.5 3.5L7 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
+
   </div>
-
-  <!-- STEP 2 -->
-  <div class="card" id="step2">
-    <div class="card-header">
-      <div class="card-header-icon">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.5"/>
-          <path d="M9 5v4l3 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        <h2>Domain Targets</h2>
-        <p>Set the desired maturity level (L1 to L5) for each of the 11 DAMA domains.</p>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="domains-hint">
-        <strong>What are targets?</strong> For each domain, select the maturity level the client
-        aims to reach. These define the gap in the results report. Default is <strong>L3</strong>.
-      </div>
-      <div class="domains-grid" id="domains-grid"></div>
-    </div>
-
-    <div class="card-footer">
-      <button class="btn btn-ghost" onclick="goStep1()">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M10 6.5H3M6 3L2.5 6.5 6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Back
-      </button>
-      <button class="btn btn-primary" id="submit-btn" onclick="submitAll()">
-        Launch Assessment
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M3 6.5h7M7 3l3.5 3.5L7 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-
 </main>
 
 <div class="loading-overlay" id="loading">
@@ -210,5 +216,62 @@
 <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/create_assessment.js') }}"></script>
+<script>
+let searchTimer = null;
+ 
+function handleSearch(val) {
+  clearTimeout(searchTimer);
+  const q = val.trim();
+  if (!q) { closeSearchDropdown(); return; }
+  searchTimer = setTimeout(() => fetchSearchResults(q), 280);
+}
+ 
+async function fetchSearchResults(q) {
+  try {
+    const res = await fetch(`/api/assessments/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    renderSearchResults(data);
+  } catch (e) {
+    closeSearchDropdown();
+  }
+}
+ 
+function renderSearchResults(results) {
+  const dropdown = document.getElementById('search-dropdown');
+  if (!results.length) {
+    dropdown.innerHTML = '<div class="search-no-results">No assessments found</div>';
+    openSearchDropdown();
+    return;
+  }
+ 
+  dropdown.innerHTML = results.map(r => {
+    const status = r.status || 'draft';
+    const date   = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '';
+    const target = status === 'complete' ? `/results?assessment_id=${r.id}` : `/questionnaire?assessment_id=${r.id}`;
+    return `
+      <a class="search-result-item" href="${target}">
+        <div>
+          <div class="search-result-name">${r.organization_name}</div>
+          <div class="search-result-meta">${r.consultant_name} &middot; ${date}</div>
+        </div>
+        <span class="search-result-status ${status}">${status.replace('_', ' ')}</span>
+      </a>
+    `;
+  }).join('');
+ 
+  openSearchDropdown();
+}
+ 
+function openSearchDropdown() {
+  document.getElementById('search-dropdown').classList.add('open');
+}
+ 
+function closeSearchDropdown() {
+  // Delay to allow click on result
+  setTimeout(() => {
+    document.getElementById('search-dropdown').classList.remove('open');
+  }, 180);
+}
+</script>
 </body>
 </html>

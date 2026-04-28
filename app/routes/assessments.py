@@ -30,6 +30,74 @@ def get_assessments():
         conn.close()
 
 
+@assessments_bp.route('/assessments/search', methods=['GET'])
+def search_assessments():
+    """
+    Search assessments by organization name.
+    GET /api/assessments/search?q=banque
+    Returns up to 8 matching assessments with status info.
+    """
+    q = request.args.get('q', '').strip()
+    if not q:
+        return jsonify([]), 200
+
+    conn = get_connection()
+    cur  = get_cursor(conn)
+    try:
+        cur.execute("""
+            SELECT a.id, a.status, a.scoring_status, a.layer2_status,
+                   a.layer3_status, a.created_at,
+                   o.name AS organization_name,
+                   c.full_name AS consultant_name
+            FROM dg_toolkit.assessments a
+            JOIN dg_toolkit.organizations o ON o.id = a.organization_id
+            JOIN dg_toolkit.consultants   c ON c.id = a.consultant_id
+            WHERE a.deleted_at IS NULL
+            AND o.name ILIKE %s
+            ORDER BY a.created_at DESC
+            LIMIT 8
+        """, [f'%{q}%'])
+        rows = cur.fetchall()
+        return jsonify([dict(r) for r in rows]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
+@assessments_bp.route('/assessments/consultant/<int:consultant_id>', methods=['GET'])
+def get_assessments_by_consultant(consultant_id):
+    conn = get_connection()
+    cur  = get_cursor(conn)
+    try:
+        cur.execute("""
+            SELECT id FROM dg_toolkit.consultants WHERE id = %s
+        """, [consultant_id])
+        if not cur.fetchone():
+            return jsonify({'error': 'Consultant not found'}), 404
+
+        cur.execute("""
+            SELECT a.id, a.status, a.scoring_status, a.layer2_status,
+                   a.layer3_status, a.targets_locked, a.engagement_date,
+                   a.submitted_at, a.scored_at, a.created_at,
+                   o.name AS organization_name,
+                   c.full_name AS consultant_name
+            FROM dg_toolkit.assessments a
+            JOIN dg_toolkit.organizations o ON o.id = a.organization_id
+            JOIN dg_toolkit.consultants   c ON c.id = a.consultant_id
+            WHERE a.consultant_id = %s AND a.deleted_at IS NULL
+            ORDER BY a.created_at DESC
+        """, [consultant_id])
+        rows = cur.fetchall()
+        return jsonify([dict(r) for r in rows]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
 @assessments_bp.route('/assessments/<int:assessment_id>', methods=['GET'])
 def get_assessment(assessment_id):
     conn = get_connection()
@@ -60,14 +128,9 @@ def get_assessment(assessment_id):
 
 @assessments_bp.route('/assessments/<int:assessment_id>/questionnaire', methods=['GET'])
 def get_questionnaire(assessment_id):
-    """
-    Returns the full questionnaire structure for an assessment:
-    domains -> kpis -> questions, with any existing answers merged in.
-    """
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        # Check assessment exists
         cur.execute("""
             SELECT id, status FROM dg_toolkit.assessments
             WHERE id = %s AND deleted_at IS NULL
@@ -76,7 +139,6 @@ def get_questionnaire(assessment_id):
         if not assessment:
             return jsonify({'error': 'Assessment not found'}), 404
 
-        # Fetch all domains with their KPIs and questions in one query
         cur.execute("""
             SELECT
                 d.id          AS domain_id,
@@ -96,7 +158,6 @@ def get_questionnaire(assessment_id):
                 q.opt_partially_text,
                 q.opt_slightly_text,
                 q.opt_not_text,
-                -- existing answer if any
                 a.selected_option,
                 a.is_na,
                 a.is_hidden,
@@ -114,7 +175,6 @@ def get_questionnaire(assessment_id):
         if not rows:
             return jsonify([]), 200
 
-        # Build nested structure: domains -> kpis -> questions
         domains_map = {}
         for r in rows:
             did = r['domain_id']
@@ -148,14 +208,12 @@ def get_questionnaire(assessment_id):
                 'opt_partially_text': r['opt_partially_text'],
                 'opt_slightly_text':  r['opt_slightly_text'],
                 'opt_not_text':     r['opt_not_text'],
-                # existing answer — null if not yet answered
                 'selected_option':  r['selected_option'],
                 'is_na':            r['is_na'],
                 'is_hidden':        r['is_hidden'],
                 'raw_value':        float(r['raw_value']) if r['raw_value'] is not None else None,
             })
 
-        # Flatten to list
         result = []
         for d in sorted(domains_map.values(), key=lambda x: x['display_order']):
             kpis_list = sorted(d['kpis'].values(), key=lambda x: x['kpi_order'])
