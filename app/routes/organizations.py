@@ -46,7 +46,7 @@ def get_organization(org_id):
 
 @organizations_bp.route('/organizations', methods=['POST'])
 def create_organization():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     required = ['name', 'industry']
     for field in required:

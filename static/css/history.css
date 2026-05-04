@@ -1,0 +1,265 @@
+/* ============================================================
+   history.css — KPMG DG Toolkit History Page
+   ============================================================ */
+
+.hist-main {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.hist-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.hist-page-header h1 {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--kpmg-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0;
+}
+.hist-page-header h1 span { color: var(--kpmg-blue-light); }
+
+/* ── Filters ─────────────────────────────────────────────────── */
+.hist-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.hist-search {
+  height: 36px;
+  width: 220px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.hist-search:focus {
+  border-color: var(--kpmg-blue);
+  box-shadow: 0 0 0 3px rgba(0,51,141,0.10);
+}
+.hist-search::placeholder { color: #A0AEC0; }
+
+.hist-filter-select {
+  height: 36px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  padding: 0 30px 0 10px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.15s;
+}
+.hist-filter-select:focus { border-color: var(--kpmg-blue); outline: none; }
+
+/* ── Cards grid ──────────────────────────────────────────────── */
+.hist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* ── Assessment card ─────────────────────────────────────────── */
+.hist-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,51,141,0.06);
+  transition: box-shadow 0.15s, transform 0.12s, border-color 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  border-top: 3px solid var(--kpmg-blue);
+}
+.hist-card:hover {
+  box-shadow: 0 6px 24px rgba(0,51,141,0.13);
+  transform: translateY(-2px);
+  border-color: var(--kpmg-blue-mid);
+  text-decoration: none;
+}
+
+.hist-card-header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hist-card-org {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--kpmg-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hist-card-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hist-card-status {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+}
+.hist-card-status.complete    { background: var(--success-bg); color: var(--success); }
+.hist-card-status.in_progress { background: #EEF4FF; color: var(--kpmg-blue); }
+.hist-card-status.draft       { background: var(--surface2); color: var(--text-muted); }
+
+/* ── Score + radar body ──────────────────────────────────────── */
+.hist-card-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 260px;
+}
+
+/* Overall score badge */
+.hist-score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 88px;
+}
+
+.hist-score-value {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--kpmg-blue);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hist-score-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+}
+.hist-score-level {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kpmg-violet);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Divider */
+.hist-card-divider {
+  width: 1px;
+  height: 120px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Radar chart — fully responsive, fills available space */
+.hist-radar-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+}
+.hist-radar-wrap canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* No score state */
+.hist-no-score {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Loading & empty ─────────────────────────────────────────── */
+.hist-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 0;
+}
+.hist-loading p {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hist-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 60px 0;
+  font-style: italic;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hist-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .hist-main { padding: 24px 16px; }
+  .hist-page-header { flex-direction: column; align-items: flex-start; }
+}
+
+/* Target level under score badge */
+.hist-score-target {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--kpmg-blue-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  text-align: center;
+}

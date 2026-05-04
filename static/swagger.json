@@ -101,7 +101,7 @@
         },
         "responses": {
           "201": { "description": "Consultant created" },
-          "409": { "description": "Email already exists" }
+          "200": { "description": "Consultant updated (email already existed)" }
         }
       }
     },
@@ -423,6 +423,116 @@
           "200": { "description": "Rating saved" },
           "400": { "description": "Validation error" },
           "404": { "description": "Recommendation not found" }
+        }
+      }
+    },
+
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Bootstrap — create first account",
+        "description": "Creates the first consultant and logs them in. Returns 403 once any consultant exists.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["full_name", "email", "password"],
+                "properties": {
+                  "full_name": { "type": "string",  "example": "Alice Dupont" },
+                  "email":     { "type": "string",  "example": "alice@kpmg.com" },
+                  "password":  { "type": "string",  "example": "secret123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Account created and session started" },
+          "400": { "description": "Validation error" },
+          "403": { "description": "Registration disabled — consultants already exist" }
+        }
+      }
+    },
+
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login",
+        "description": "Authenticate a consultant and create a session.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email":    { "type": "string", "example": "consultant@kpmg.com" },
+                  "password": { "type": "string", "example": "secret123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message":         { "type": "string" },
+                    "consultant_id":   { "type": "integer" },
+                    "consultant_name": { "type": "string" },
+                    "email":           { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing fields" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "description": "Clear the current session.",
+        "responses": {
+          "200": { "description": "Logged out successfully" }
+        }
+      }
+    },
+
+    "/auth/session": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Check session",
+        "description": "Returns the currently authenticated consultant if a session exists.",
+        "responses": {
+          "200": {
+            "description": "Authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated":    { "type": "boolean" },
+                    "consultant_id":    { "type": "integer" },
+                    "consultant_name":  { "type": "string" },
+                    "consultant_email": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" }
         }
       }
     }

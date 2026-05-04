@@ -114,7 +114,9 @@ def run_layer3(assessment_id: int) -> dict:
             """, (assessment_id,))
             conn.commit()
 
-            # Load all pending recommendations for this assessment
+            # Load all pending recommendations for this assessment.
+            # Includes target_level, gap, from_level and to_level for
+            # gap-aware prompting and incremental path generation.
             cur.execute(f"""
                 SELECT
                     r.id              AS rec_id,
@@ -122,17 +124,23 @@ def run_layer3(assessment_id: int) -> dict:
                     k.name            AS kpi_name,
                     d.name            AS domain_name,
                     al.action_text,
-                    ks.maturity_level
+                    ks.maturity_level,
+                    ds.target_level,
+                    ds.gap,
+                    al.from_level,
+                    al.from_level + 1 AS to_level
                 FROM {SCHEMA}.recommendations r
                 JOIN {SCHEMA}.kpis k            ON k.id = r.kpi_id
                 JOIN {SCHEMA}.domains d         ON d.id = k.domain_id
                 JOIN {SCHEMA}.action_library al ON al.id = r.base_action_id
                 JOIN {SCHEMA}.kpi_scores ks     ON ks.kpi_id = r.kpi_id
                                                AND ks.assessment_id = %s
+                JOIN {SCHEMA}.domain_scores ds  ON ds.domain_id = k.domain_id
+                                               AND ds.assessment_id = %s
                 WHERE r.assessment_id = %s
                 AND r.rag_status = 'pending'
                 ORDER BY r.id
-            """, (assessment_id, assessment_id))
+            """, (assessment_id, assessment_id, assessment_id))
             recommendations = cur.fetchall()
 
             logger.info(
@@ -144,7 +152,8 @@ def run_layer3(assessment_id: int) -> dict:
             failed = 0
 
             for rec in recommendations:
-                rec_id, kpi_id, kpi_name, domain_name, action_text, maturity_level = rec
+                (rec_id, kpi_id, kpi_name, domain_name, action_text,
+                 maturity_level, target_level, gap, from_level, to_level) = rec
 
                 # Mark as running
                 cur.execute(f"""
@@ -170,13 +179,18 @@ def run_layer3(assessment_id: int) -> dict:
                         cur, kpi_id, assessment_id, industry
                     )
 
-                    # Step 3 — Build prompt
+                    # Step 3 — Build prompt with full context including gap data
+                    # and incremental path (from_level → to_level → target_level)
                     org_context = {
                         "industry":       industry,
                         "size":           size_band,
                         "maturity_level": maturity_level,
                         "domain_name":    domain_name,
-                        "org_name":       org_name
+                        "org_name":       org_name,
+                        "target_level":   target_level,
+                        "gap":            gap,
+                        "from_level":     from_level,
+                        "to_level":       to_level,
                     }
                     messages = build_prompt(
                         kpi_name=kpi_name,

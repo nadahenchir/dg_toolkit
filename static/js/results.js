@@ -34,7 +34,7 @@ function render(assessment, scores) {
   const domains   = scores.domains;
   const pct       = Math.round(overall.overall_score * 100);
   const level     = overall.overall_level;
-  const domainsAt = domains.filter(d => d.gap === 0).length;
+  const domainsAt = domains.filter(d => d.gap <= 0).length;
   const avgGap    = (domains.reduce((s, d) => s + d.gap, 0) / domains.length).toFixed(1);
 
   // Page header
@@ -81,9 +81,7 @@ function renderDomains(domains, kpis) {
         <div class="domain-section-left">
           <span class="domain-section-name">${d.domain_name}</span>
           <span class="level-badge current">L${d.maturity_level}</span>
-          <span class="gap-badge gap-${Math.min(d.gap, 3)}">
-            ${d.gap === 0 ? '✓ On target' : `Gap ${d.gap}`}
-          </span>
+          ${d.gap === 0 ? `<span class="gap-badge gap-0">✓ On target</span>` : ''}
         </div>
         <div style="display:flex;align-items:center;gap:14px;">
           <div class="domain-section-right">

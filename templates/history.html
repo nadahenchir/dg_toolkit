@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>History — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+{% include 'topbar_snippet.html' %}
+
+<main class="hist-main">
+
+  <div class="hist-page-header">
+    <div>
+      <h1 class="page-header h1">Assessment <span>History</span></h1>
+    </div>
+    <div class="hist-filters">
+      <input class="hist-search" id="hist-search" type="text" placeholder="Search organization..." oninput="filterCards()"/>
+    </div>
+  </div>
+
+  <div class="hist-grid" id="hist-grid">
+    <div class="hist-loading">
+      <div class="spinner"></div>
+      <p>Loading assessments...</p>
+    </div>
+  </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+<script src="{{ url_for('static', filename='js/topbar.js') }}"></script>
+</body>
+</html>

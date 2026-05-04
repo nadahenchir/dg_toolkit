@@ -6,10 +6,11 @@ assessments_bp = Blueprint('assessments', __name__)
 
 @assessments_bp.route('/assessments', methods=['GET'])
 def get_assessments():
+    limit = request.args.get('limit', type=int)
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        cur.execute("""
+        sql = """
             SELECT a.id, a.status, a.scoring_status, a.layer2_status,
                    a.layer3_status, a.targets_locked, a.engagement_date,
                    a.submitted_at, a.scored_at, a.created_at,
@@ -20,7 +21,12 @@ def get_assessments():
             JOIN dg_toolkit.consultants   c ON c.id = a.consultant_id
             WHERE a.deleted_at IS NULL
             ORDER BY a.created_at DESC
-        """)
+        """
+        params = []
+        if limit:
+            sql += " LIMIT %s"
+            params.append(limit)
+        cur.execute(sql, params)
         rows = cur.fetchall()
         return jsonify([dict(r) for r in rows]), 200
     except Exception as e:
@@ -235,7 +241,7 @@ def get_questionnaire(assessment_id):
 
 @assessments_bp.route('/assessments', methods=['POST'])
 def create_assessment():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     required = ['organization_id', 'consultant_id']
     for field in required:
@@ -284,7 +290,7 @@ def create_assessment():
 
 @assessments_bp.route('/assessments/<int:assessment_id>/targets', methods=['POST'])
 def set_targets(assessment_id):
-    data = request.get_json()
+    data = request.get_json() or {}
 
     if not data.get('targets') or not isinstance(data['targets'], list):
         return jsonify({'error': 'targets must be a non-empty list'}), 400

@@ -1,0 +1,30 @@
+[
+  {
+    "company": "STAR Assurances",
+    "org_id": 106,
+    "assessment_id": 87,
+    "status": "ok",
+    "label": "L1 everywhere vs L3 target (insurance large)"
+  },
+  {
+    "company": "Societe Nationale d Exploitation et de Distribution des Eaux",
+    "org_id": 107,
+    "assessment_id": 88,
+    "status": "ok",
+    "label": "L1/L2 mixed vs L3 target (public sector)"
+  },
+  {
+    "company": "Tunisair",
+    "org_id": 108,
+    "assessment_id": 89,
+    "status": "ok",
+    "label": "L1 everywhere vs L3 target (aviation)"
+  },
+  {
+    "company": "Caisse Nationale d Assurance Maladie",
+    "org_id": 109,
+    "assessment_id": 90,
+    "status": "ok",
+    "label": "L1 everywhere vs L3 target (public healthcare)"
+  }
+]

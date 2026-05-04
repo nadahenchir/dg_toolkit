@@ -70,8 +70,6 @@ function validate1() {
     { el: 'industry',            fid: 'f-industry',           fn: v => v },
     { el: 'country',             fid: 'f-country',            fn: v => v },
     { el: 'company-description', fid: 'f-company-description',fn: v => v.trim() },
-    { el: 'con-name',            fid: 'f-con-name',           fn: v => v.trim() },
-    { el: 'con-email',           fid: 'f-con-email',          fn: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
   ];
   rules.forEach(({ el, fid, fn }) => {
     const f = document.getElementById(fid);
@@ -162,6 +160,7 @@ async function submitAll() {
 
   try {
     loading(true, 'Creating organization...');
+    const session = await apiFetch('/auth/session');
     const org = await apiFetch('/organizations', {
       method: 'POST',
       body: JSON.stringify({
@@ -174,19 +173,10 @@ async function submitAll() {
       }),
     });
 
-    loading(true, 'Creating consultant...');
-    const consultant = await apiFetch('/consultants', {
-      method: 'POST',
-      body: JSON.stringify({
-        full_name: document.getElementById('con-name').value.trim(),
-        email:     document.getElementById('con-email').value.trim(),
-      }),
-    });
-
     loading(true, 'Creating assessment...');
     const assessment = await apiFetch('/assessments', {
       method: 'POST',
-      body: JSON.stringify({ organization_id: org.id, consultant_id: consultant.id }),
+      body: JSON.stringify({ organization_id: org.id, consultant_id: session.consultant_id }),
     });
 
     loading(true, 'Setting domain targets...');

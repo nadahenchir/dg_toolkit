@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.db.connection import get_connection, get_cursor
+from werkzeug.security import generate_password_hash
 import re
 
 consultants_bp = Blueprint('consultants', __name__)
@@ -49,33 +50,43 @@ def get_consultant(consultant_id):
 
 @consultants_bp.route('/consultants', methods=['POST'])
 def create_consultant():
-    data = request.get_json()
+    data = request.get_json() or {}
 
-    required = ['full_name', 'email']
+    required = ['full_name', 'email', 'password']
     for field in required:
         if not data.get(field):
             return jsonify({'error': f'{field} is required'}), 400
 
+    data['email'] = data['email'].strip().lower()
     if not _EMAIL_RE.match(data['email']):
         return jsonify({'error': 'A valid email is required'}), 400
+
+    if len(data['password']) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    password_hash = generate_password_hash(data['password'])
 
     conn = get_connection()
     cur  = get_cursor(conn)
     try:
-        # Upsert — if email already exists, update full_name and return existing row
+        # Upsert — if email already exists, update full_name and password_hash
         cur.execute("""
-            INSERT INTO dg_toolkit.consultants (full_name, email)
-            VALUES (%s, %s)
+            INSERT INTO dg_toolkit.consultants (full_name, email, password_hash)
+            VALUES (%s, %s, %s)
             ON CONFLICT (email) DO UPDATE
-                SET full_name = EXCLUDED.full_name
-            RETURNING id, full_name, email, created_at
+                SET full_name     = EXCLUDED.full_name,
+                    password_hash = EXCLUDED.password_hash
+            RETURNING id, full_name, email, created_at, (xmax = 0) AS is_new
         """, (
             data['full_name'],
             data['email'],
+            password_hash,
         ))
         row = cur.fetchone()
         conn.commit()
-        return jsonify(dict(row)), 200
+        is_new = row['is_new']
+        result = {k: v for k, v in dict(row).items() if k != 'is_new'}
+        return jsonify(result), 201 if is_new else 200
     except Exception as e:
         conn.rollback()
         return jsonify({'error': str(e)}), 500

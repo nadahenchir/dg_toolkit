@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/questionnaire.css') }}"/>
+  <style>#q-content > .topbar { position: relative; z-index: 100; flex-shrink: 0; }</style>
 </head>
 <body>
 
@@ -17,15 +18,7 @@
 
 <div id="q-content" class="app-layout" style="display:none;flex-direction:column;">
 
-  <header class="topbar" style="position:relative;z-index:100;flex-shrink:0;">
-    <a class="topbar-logo" href="#">
-      <img src="{{ url_for('static', filename='img/kpmg-vector-logo.png') }}" alt="KPMG"/>
-    </a>
-    <div class="topbar-right">
-      <div class="topbar-divider"></div>
-      <span class="topbar-org" id="topbar-org-name">Loading...</span>
-    </div>
-  </header>
+  {% include 'topbar_snippet.html' %}
 
   <div style="display:flex;flex:1;overflow:hidden;">
 
@@ -92,12 +85,6 @@
 <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
-<script>
-  const _sidebarOrg = document.getElementById('sidebar-org');
-  const _topbarOrg  = document.getElementById('topbar-org-name');
-  new MutationObserver(() => {
-    _topbarOrg.textContent = _sidebarOrg.textContent;
-  }).observe(_sidebarOrg, { childList: true, characterData: true, subtree: true });
-</script>
+<script src="{{ url_for('static', filename='js/topbar.js') }}"></script>
 </body>
 </html>

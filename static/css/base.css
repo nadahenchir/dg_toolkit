@@ -535,3 +535,34 @@ h1, h2, h3, h4, h5, h6,
   .card-body { padding: 20px; }
   .card-footer { flex-direction: column; gap: 10px; }
 }
+/* ── Topbar user name ────────────────────────────────────────── */
+.topbar-user {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.04em;
+}
+
+/* ── Logout button ───────────────────────────────────────────── */
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: var(--radius);
+  color: rgba(255,255,255,0.80);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-logout:hover {
+  background: rgba(255,255,255,0.18);
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.40);
+}

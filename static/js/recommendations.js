@@ -173,7 +173,11 @@ function pollForNarratives() {
     <span style="color:var(--text-muted);font-weight:700;">Generating narratives...</span>
   `;
 
+  let attempts = 0;
+  const MAX_ATTEMPTS = 24; // 2 minutes at 5 s intervals
+
   const interval = setInterval(async () => {
+    attempts++;
     try {
       const recs = await apiFetch(`/assessments/${assessmentId}/recommendations`);
       if (recs.rag_ready) {
@@ -191,9 +195,13 @@ function pollForNarratives() {
           </svg>
           <span style="color:#2E7D32;font-weight:700;">AI Narratives Ready</span>
         `;
+      } else if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(interval);
+        badge.innerHTML = `<span style="color:var(--text-muted);font-weight:700;">Narratives unavailable</span>`;
       }
     } catch (e) {
       clearInterval(interval);
+      badge.innerHTML = `<span style="color:var(--text-muted);font-weight:700;">Narratives unavailable</span>`;
     }
   }, 5000); // poll every 5 seconds
 }

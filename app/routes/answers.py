@@ -51,7 +51,7 @@ def save_kpi_answers(assessment_id, kpi_id):
       - Q1 = Not  → KPI scores L1, Q2/Q3/Q4 marked is_hidden = true
       - Q1 = else → all questions saved normally
     """
-    data = request.get_json()
+    data = request.get_json() or {}
 
     if not data.get('answers') or not isinstance(data['answers'], list):
         return jsonify({'error': 'answers must be a non-empty list'}), 400
@@ -265,4 +265,4 @@ def submit_assessment(assessment_id):
             **scoring_result
         }), 200
     except Exception as e:
-        return jsonify({'error': f'Submitted but scoring failed: {str(e)}'}), 500
+        return jsonify({'warning': f'Submitted but scoring failed: {str(e)}'}), 207

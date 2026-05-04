@@ -13,7 +13,7 @@ MODEL  = 'llama-3.3-70b-versatile'
 
 @generate_bp.route('/generate/organization-description', methods=['POST'])
 def generate_organization_description():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     name     = data.get('name', '').strip()
     industry = data.get('industry', '').strip()

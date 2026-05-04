@@ -128,10 +128,8 @@
   padding: 2px 8px;
   border-radius: var(--radius);
 }
-.gap-badge.gap-0 { background: #E0F5F5; color: #00875a;                border: 1px solid #197e7c; }
-.gap-badge.gap-1 { background: #E5F4FC; color: var(--kpmg-blue-light); border: 1px solid var(--kpmg-blue-light); }
-.gap-badge.gap-2 { background: #FFF4E5; color: #FF8B00;                border: 1px solid #FF8B00; }
-.gap-badge.gap-3 { background: #FAECEC; color: #C0392B;                border: 1px solid #C0392B; }
+.gap-badge.gap-0 { background: #E0F5F5; color: #00875a;       
+}          
 
 /* Domain sections */
 .domains-grid {

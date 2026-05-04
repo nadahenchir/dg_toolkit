@@ -433,8 +433,13 @@ async function submitAssessment() {
   setSaveStatus('saving');
   try {
     loading(true, 'Submitting assessment and running scoring engine…');
-    await apiFetch(`/assessments/${assessmentId}/submit`, { method: 'POST' });
+    const result = await apiFetch(`/assessments/${assessmentId}/submit`, { method: 'POST' });
     loading(false);
+    if (result.warning) {
+      setSaveStatus('');
+      toast('Assessment submitted but scoring failed. Please contact your administrator.', 'error');
+      return;
+    }
     toast('Assessment complete! Redirecting to results…', 'success');
     setTimeout(() => {
       window.location.href = `/results?assessment_id=${assessmentId}`;

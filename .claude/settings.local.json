@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json; json.load\\(open\\('c:/Users/USER/OneDrive/Bureau/dg_toolkit/static/swagger.json'\\)\\); print\\('Valid JSON'\\)\")"
+    ]
+  }
+}

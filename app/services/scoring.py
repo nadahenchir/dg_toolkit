@@ -333,6 +333,9 @@ def run_scoring(assessment_id: int):
         domain_scores = compute_domain_scores(assessment_id, kpi_scores, conn)
         overall       = compute_assessment_score(assessment_id, domain_scores, conn)
 
+        if overall is None:
+            raise ValueError("No scorable domains found — overall score could not be computed.")
+
         with conn.cursor() as cur:
             cur.execute(
                 """

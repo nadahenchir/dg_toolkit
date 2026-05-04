@@ -10,8 +10,8 @@ Triggered automatically by scoring.py after scoring_status = 'done'.
 
 Logic:
     1. Fetch all non-excluded KPI scores for the assessment.
-    2. For each KPI where maturity_level < 5, look up the matching action in
-       action_library (kpi_id + from_level = maturity_level).
+    2. For each KPI where maturity_level < 5 and maturity_level < target_level,
+       look up the matching action in action_library (kpi_id + from_level = maturity_level).
     3. Derive action_category from impact/effort at insert time.
     4. Upsert one row per KPI into recommendations with priority_score = 1.0.
     5. Trigger Layer 2 automatically on success — outside the try/except
@@ -79,8 +79,14 @@ def run_layer1(assessment_id: int) -> dict:
             cur.execute(
                 """
                 SELECT ks.kpi_id,
-                       ks.maturity_level
+                       ks.maturity_level,
+                       ds.target_level
                 FROM   dg_toolkit.kpi_scores ks
+                JOIN   dg_toolkit.kpis k
+                       ON  k.id = ks.kpi_id
+                JOIN   dg_toolkit.domain_scores ds
+                       ON  ds.domain_id      = k.domain_id
+                       AND ds.assessment_id  = ks.assessment_id
                 WHERE  ks.assessment_id = %s
                   AND  ks.is_excluded   = false
                   AND  ks.maturity_level IS NOT NULL
@@ -94,9 +100,9 @@ def run_layer1(assessment_id: int) -> dict:
         updated  = 0
         skipped  = 0
 
-        for kpi_id, maturity_level in kpi_rows:
-            # KPI already at max — no action exists for from_level = 5
-            if maturity_level >= 5:
+        for kpi_id, maturity_level, target_level in kpi_rows:
+            # Skip if already at max, or already meeting/exceeding the target
+            if maturity_level >= 5 or (target_level is not None and maturity_level >= target_level):
                 skipped += 1
                 continue
 

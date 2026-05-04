@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — DG Toolkit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}"/>
+</head>
+<body>
+
+{% include 'topbar_snippet.html' %}
+
+<main class="db-main">
+
+  <!-- Page header -->
+  <div class="db-page-header">
+    <div>
+      <h1 class="db-welcome">Good morning, <span id="welcome-name">Consultant</span></h1>
+    </div>
+    <div class="db-stats-strip">
+      <div class="db-stat">
+        <span class="db-stat-value" id="stat-total">—</span>
+        <span class="db-stat-label">Total Assessments</span>
+      </div>
+      <div class="db-stat-divider"></div>
+      <div class="db-stat">
+        <span class="db-stat-value" id="stat-complete">—</span>
+        <span class="db-stat-label">Completed</span>
+      </div>
+      <div class="db-stat-divider"></div>
+      <div class="db-stat">
+        <span class="db-stat-value" id="stat-progress">—</span>
+        <span class="db-stat-label">In Progress</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 action cards -->
+  <div class="db-cards">
+
+    <a class="db-card" href="/create_assessment">
+      <div class="db-card-icon db-icon-blue">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <rect x="4" y="4" width="18" height="18" rx="3" stroke="white" stroke-width="1.6"/>
+          <path d="M13 9v8M9 13h8" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="db-card-body">
+        <div class="db-card-title">New Assessment</div>
+        <div class="db-card-desc">Set up a client organization, assign a consultant, and define maturity targets to start a new assessment.</div>
+      </div>
+      <div class="db-card-arrow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+    <div class="db-card" onclick="openModal('questionnaire')">
+      <div class="db-card-icon db-icon-mid">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <rect x="4" y="4" width="18" height="18" rx="3" stroke="white" stroke-width="1.6"/>
+          <path d="M8 9h10M8 13h7M8 17h5" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="db-card-body">
+        <div class="db-card-title">Questionnaire</div>
+        <div class="db-card-desc">Resume an in-progress assessment. Answer KPIs across all 11 DAMA domains to complete scoring.</div>
+      </div>
+      <div class="db-card-arrow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="db-card" onclick="openModal('results')">
+      <div class="db-card-icon db-icon-green">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <circle cx="13" cy="13" r="9" stroke="white" stroke-width="1.6"/>
+          <path d="M9 13l3 3 5-5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="db-card-body">
+        <div class="db-card-title">Results & Scores</div>
+        <div class="db-card-desc">View maturity scores, domain breakdown, and the radar chart for a completed assessment.</div>
+      </div>
+      <div class="db-card-arrow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <a class="db-card" href="/history">
+      <div class="db-card-icon db-icon-violet">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <circle cx="13" cy="13" r="9" stroke="white" stroke-width="1.6"/>
+          <path d="M13 8v5l3 3" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="db-card-body">
+        <div class="db-card-title">History</div>
+        <div class="db-card-desc">Browse all past assessments by organization. View maturity scores and mini radar charts at a glance.</div>
+      </div>
+      <div class="db-card-arrow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Recent assessments -->
+  <div class="db-section">
+    <div class="db-section-header">
+      <div class="db-section-title">Recent Assessments</div>
+      <a href="/history" class="db-section-link">View all →</a>
+    </div>
+    <div class="db-recent" id="recent-assessments">
+      <div class="db-empty">Loading recent assessments...</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Assessment picker modal -->
+<div class="db-modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="db-modal" onclick="event.stopPropagation()">
+    <div class="db-modal-header">
+      <div class="db-modal-title" id="modal-title">Select Assessment</div>
+      <button class="db-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <input class="db-modal-search" id="modal-search" type="text"
+           placeholder="Search organization..." oninput="filterModal(this.value)"/>
+    <div class="db-modal-list" id="modal-list"></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/topbar.js') }}"></script>
+</body>
+</html>
