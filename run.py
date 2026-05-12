@@ -3,6 +3,7 @@ from flask import Flask, render_template, abort, session, redirect, url_for, req
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from dotenv import load_dotenv
+from app.routes.reports import reports_bp
 
 from app.routes.organizations   import organizations_bp
 from app.routes.consultants     import consultants_bp
@@ -89,6 +90,7 @@ app.register_blueprint(answers_bp,         url_prefix='/api')
 app.register_blueprint(scores_bp,          url_prefix='/api')
 app.register_blueprint(recommendations_bp, url_prefix='/api')
 app.register_blueprint(generate_bp,        url_prefix='/api')
+app.register_blueprint(reports_bp, url_prefix='/api')
 
 # ── Swagger UI ───────────────────────────────────────────────────────────────
 SWAGGER_URL = '/docs'

@@ -1,0 +1,64 @@
+<div class="cover">
+  <div class="cover-top-band">
+    <span class="cover-kpmg-wordmark">KPMG</span>
+  </div>
+
+  <div class="cover-hero">
+    <div class="cover-eyebrow">Data Governance Maturity Assessment</div>
+    <div class="cover-title">{{ org_name }}</div>
+    <div class="cover-subtitle">Maturity Assessment Report — {{ engagement_date }}</div>
+  </div>
+
+  <div class="cover-divider"></div>
+
+  <div class="cover-score-block">
+    <div class="cover-score-card">
+      <div class="cover-score-label">Overall Score</div>
+      <div class="cover-score-value">{{ overall_pct }}%</div>
+      <div class="cover-score-sub">Out of 100%</div>
+    </div>
+    <div class="cover-score-card">
+      <div class="cover-score-label">Maturity Level</div>
+      <div class="cover-score-value">L{{ overall_level }}</div>
+      <div class="cover-score-sub">{{ overall_label }}</div>
+    </div>
+    <div class="cover-score-card">
+      <div class="cover-score-label">Domains at or Above Target</div>
+      <div class="cover-score-value">{{ domains_at_above }}/{{ domains_scored }}</div>
+      <div class="cover-score-sub">of {{ domains_scored }} domains</div>
+    </div>
+    <div class="cover-score-card">
+      <div class="cover-score-label">Total Recommendations</div>
+      <div class="cover-score-value">{{ total_recs }}</div>
+      <div class="cover-score-sub">{{ quick_wins_count }} QW · {{ strategic_count }} Strat · {{ fill_in_count }} FI</div>
+    </div>
+  </div>
+
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Organization</div>
+      <div class="cover-meta-value">{{ org_name }}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Industry</div>
+      <div class="cover-meta-value">{{ industry }}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Size</div>
+      <div class="cover-meta-value">{{ size_band }}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Consultant</div>
+      <div class="cover-meta-value">{{ consultant_name }}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Generated</div>
+      <div class="cover-meta-value">{{ generated_at }}</div>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <span class="cover-bottom-text">KPMG Tunisia · Data Governance Practice</span>
+    <span class="cover-confidential">Confidential</span>
+  </div>
+</div>

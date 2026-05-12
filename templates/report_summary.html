@@ -1,0 +1,41 @@
+<div class="content">
+
+  <div class="page-heading">Executive Summary</div>
+  <div class="page-subheading">{{ org_name }} · {{ industry }} · {{ size_band }}</div>
+
+  <div class="summary-grid">
+    <div class="summary-card highlight">
+      <div class="summary-card-label">Overall Score</div>
+      <div class="summary-card-value">{{ overall_pct }}%</div>
+      <div class="summary-card-sub">Out of 100%</div>
+    </div>
+    <div class="summary-card highlight">
+      <div class="summary-card-label">Maturity Level</div>
+      <div class="summary-card-value">L{{ overall_level }}</div>
+      <div class="summary-card-sub">{{ overall_label }}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Domains at or Above Target</div>
+      <div class="summary-card-value">{{ domains_at_above }}/{{ domains_scored }}</div>
+      <div class="summary-card-sub">of {{ domains_scored }} domains</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Avg. Maturity Gap</div>
+      <div class="summary-card-value">{{ avg_gap }}</div>
+      <div class="summary-card-sub">avg. gap vs target</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Recommendations</div>
+      <div class="summary-card-value">{{ total_recs }}</div>
+      <div class="summary-card-sub">{{ quick_wins_count }} QW · {{ strategic_count }} Strat · {{ fill_in_count }} FI</div>
+    </div>
+  </div>
+
+  <div class="section-title">Maturity Profile — Current vs Target</div>
+  {% if radar_chart %}
+  <div class="radar-container">
+    <img src="{{ radar_chart }}" alt="Radar chart — Current vs Target maturity"/>
+  </div>
+  {% endif %}
+
+</div>

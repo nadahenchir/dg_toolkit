@@ -1,0 +1,59 @@
+<div class="content page-break">
+
+  <div class="page-heading">Domain Breakdown</div>
+  <div class="page-subheading">Maturity scores across all 11 DAMA domains</div>
+
+  {% for domain in domains %}
+  <div class="domain-block avoid-break">
+    <div class="domain-header">
+      <div style="display:flex;align-items:center;gap:3mm;">
+        <span class="domain-name">{{ domain.domain_name }}</span>
+        <span class="level-badge">L{{ domain.maturity_level }}</span>
+        {% if domain.gap_class == 'above' %}
+          <span class="gap-badge-above">▲ Above Target</span>
+        {% elif domain.gap_class == 'on-target' %}
+          <span class="gap-badge-target">✓ On Target</span>
+        {% else %}
+          <span class="gap-badge-below">Gap +{{ domain.gap }}</span>
+        {% endif %}
+      </div>
+      <div class="domain-meta">
+        <span>Target L{{ domain.target_level }}</span>
+        <span>{{ domain.raw_score_pct }}%</span>
+        <span>{{ domain.kpis_scored }} KPIs</span>
+      </div>
+    </div>
+
+    {% if domain.kpis %}
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th style="width:55%">KPI</th>
+          <th style="width:30%">Score</th>
+          <th style="width:15%;text-align:center">Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for kpi in domain.kpis %}
+        <tr>
+          <td>{{ kpi.kpi_name }}</td>
+          <td>
+            <div class="mini-bar-wrap">
+              <div class="mini-bar-bg">
+                <div class="mini-bar-fill" style="width:{{ kpi.raw_score_pct }}%;"></div>
+              </div>
+              <span class="mini-bar-pct">{{ kpi.raw_score_pct }}%</span>
+            </div>
+          </td>
+          <td style="text-align:center">
+            <span class="level-badge">L{{ kpi.maturity_level }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</div>

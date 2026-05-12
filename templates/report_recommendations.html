@@ -1,0 +1,78 @@
+{% macro rec_card(rec) %}
+<div class="rec-card">
+  <div class="rec-card-header">
+    <div class="rec-kpi-name">{{ rec.kpi_name }}</div>
+    <div class="rec-badges">
+      {% if rec.maturity_path %}
+      <span class="badge badge-path">{{ rec.maturity_path }}</span>
+      {% endif %}
+      <span class="badge badge-impact-{{ rec.impact | lower }}">{{ rec.impact }} Impact</span>
+      <span class="badge badge-effort-{{ rec.effort | lower }}">{{ rec.effort }} Effort</span>
+    </div>
+  </div>
+  <div class="rec-card-body">
+    <div class="rec-action-text">{{ rec.action_text }}</div>
+    {% if rec.rag_narrative %}
+    <div class="rec-narrative">{{ rec.rag_narrative }}</div>
+    {% else %}
+    <div class="rec-no-narrative">Narrative not yet generated.</div>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro domain_group_section(groups) %}
+{% for domain_group in groups %}
+<div class="rec-domain-group">
+  <div class="rec-domain-label">{{ domain_group.domain_name }}</div>
+  {% for rec in domain_group.recommendations %}
+    {{ rec_card(rec) }}
+  {% endfor %}
+</div>
+{% endfor %}
+{% endmacro %}
+
+<!-- ── Quick Wins ─────────────────────────────────────────────────────────── -->
+{% if quick_wins %}
+<div class="content page-break">
+  <div class="page-heading">Recommendations</div>
+  <div class="page-subheading">Prioritized action plan grouped by category and domain</div>
+
+  <div class="section-title">Quick Wins</div>
+  <div class="category-section">
+    <div class="category-header quick-win">
+      <span class="category-title">⚡ Quick Wins</span>
+      <span class="category-count">{{ quick_wins_count }} action{{ 's' if quick_wins_count != 1 }} — High impact, low effort</span>
+    </div>
+    {{ domain_group_section(quick_wins) }}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Strategic Actions ──────────────────────────────────────────────────── -->
+{% if strategic %}
+<div class="content page-break">
+  <div class="section-title">Strategic Actions</div>
+  <div class="category-section">
+    <div class="category-header strategic">
+      <span class="category-title">🎯 Strategic Actions</span>
+      <span class="category-count">{{ strategic_count }} action{{ 's' if strategic_count != 1 }} — High impact, higher effort</span>
+    </div>
+    {{ domain_group_section(strategic) }}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Fill In ────────────────────────────────────────────────────────────── -->
+{% if fill_in %}
+<div class="content page-break">
+  <div class="section-title">Fill In Actions</div>
+  <div class="category-section">
+    <div class="category-header fill-in">
+      <span class="category-title">📋 Fill In</span>
+      <span class="category-count">{{ fill_in_count }} action{{ 's' if fill_in_count != 1 }}</span>
+    </div>
+    {{ domain_group_section(fill_in) }}
+  </div>
+</div>
+{% endif %}

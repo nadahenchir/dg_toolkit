@@ -15,7 +15,6 @@ def _build_maturity_path(from_level: int, to_level: int, target_level: int) -> s
     if from_level is None or to_level is None or target_level is None:
         return None
     if to_level >= target_level:
-        # This action already reaches the target — no further steps to describe
         return None
 
     steps = [f"L{from_level}→L{to_level}"]
@@ -69,7 +68,7 @@ def build_prompt(
     maturity     = org_context.get("maturity_level", "unspecified maturity level")
     domain_name  = org_context.get("domain_name", "data governance")
     target_level = org_context.get("target_level")
-    gap          = org_context.get("gap")   # gap = target - current: positive = below target
+    gap          = org_context.get("gap")
     from_level   = org_context.get("from_level")
     to_level     = org_context.get("to_level")
 
@@ -79,7 +78,6 @@ def build_prompt(
     # ── Gap-aware context string ─────────────────────────────────────────────
     if gap is not None and target_level is not None:
         if gap > 0:
-            # Below target — needs improvement
             gap_context = (
                 f"on the KPI \"{kpi_name}\", {org_name} is currently at maturity level L{maturity}, "
                 f"which is {gap} level(s) below their target of L{target_level}. "
@@ -91,7 +89,6 @@ def build_prompt(
             )
 
             if maturity_path:
-                # Multi-step gap: explain this is the first step of a longer journey
                 path_note = (
                     f" The full improvement path to reach L{target_level} is: {maturity_path}. "
                     f"This action addresses the immediate L{from_level}→L{to_level} step — "
@@ -99,7 +96,6 @@ def build_prompt(
                     f"to the subsequent stages."
                 )
             else:
-                # This action directly reaches the target
                 path_note = (
                     f" This action is the final step to reach the target of L{target_level}."
                 )
@@ -110,7 +106,6 @@ def build_prompt(
             )
 
         elif gap == 0:
-            # On target — sustain
             gap_context = (
                 f"on the KPI \"{kpi_name}\", {org_name} is currently at maturity level L{maturity}, "
                 f"which meets their target of L{target_level}. "
@@ -127,7 +122,6 @@ def build_prompt(
             )
 
         else:
-            # Above target — leverage strength (gap < 0)
             gap_context = (
                 f"on the KPI \"{kpi_name}\", {org_name} is currently at maturity level L{maturity}, "
                 f"which exceeds their target of L{target_level} by {abs(gap)} level(s). "
@@ -180,9 +174,13 @@ with this action — do not name them directly."""
 
     # ── System prompt ────────────────────────────────────────────────────────
     system_prompt = (
-        "You are a senior data governance consultant at KPMG. "
+        "You are a senior data governance consultant at KPMG with deep expertise in DAMA-DMBOK, "
+        "CMMI, and industry-specific data governance practices. "
         "Write concise, professional consulting narratives tailored to a specific organization. "
         "Be direct and practical. Do not use bullet points. Avoid filler phrases and repetition. "
+        "Draw on your knowledge of industry best practices, regulatory frameworks, and real-world "
+        "implementation patterns relevant to the organization's sector and country — "
+        "beyond the reference material provided. "
         "Never recommend improvement actions for organizations already at or above their target — "
         "focus on sustaining or leveraging existing strengths instead. "
         "Never contradict yourself — if the organization is above target, do not describe deficiencies. "
@@ -202,6 +200,11 @@ The recommended action is:
 Use the following reference material to enrich your narrative:
 {chunks_text}
 {similarity_instruction}
+
+Important: Draw on any specific knowledge you have about {org_name} — their market position, \
+known challenges, strategic priorities, and operating context. Also incorporate {industry}-specific \
+regulatory frameworks, compliance requirements, and best practices relevant to {org_name} \
+to make the narrative as credible and tailored as possible.
 
 Write exactly 2 paragraphs (max 90 words each):
 

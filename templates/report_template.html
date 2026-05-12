@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  {% include 'report_base.html' %}
+</head>
+<body>
+
+  {% include 'report_cover.html' %}
+
+  <div id="footer">
+    <span class="footer-logo">KPMG</span>
+    <span>{{ org_name }} · Data Governance Maturity Assessment · {{ generated_at }}</span>
+    <span>Confidential</span>
+  </div>
+
+  {% include 'report_summary.html' %}
+  {% include 'report_domains.html' %}
+  {% include 'report_recommendations.html' %}
+
+</body>
+</html>

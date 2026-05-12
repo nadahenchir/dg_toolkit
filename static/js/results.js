@@ -6,6 +6,7 @@ const MATURITY_LABELS = { 1: 'Initial', 2: 'Managed', 3: 'Defined', 4: 'Quantifi
 
 let assessmentId = null;
 let scoresData   = null;
+let radarChartInstance = null;  // keep reference for PDF capture
 
 /* ── Init ── */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -35,7 +36,7 @@ function render(assessment, scores) {
   const pct       = Math.round(overall.overall_score * 100);
   const level     = overall.overall_level;
   const domainsAt = domains.filter(d => d.gap <= 0).length;
-  const avgGap    = (domains.reduce((s, d) => s + d.gap, 0) / domains.length).toFixed(1);
+  const avgGap    = (domains.reduce((s, d) => s + (d.gap ?? 0), 0) / domains.length).toFixed(1);
 
   // Page header
   document.getElementById('org-name').textContent         = assessment.organization_name;
@@ -81,7 +82,11 @@ function renderDomains(domains, kpis) {
         <div class="domain-section-left">
           <span class="domain-section-name">${d.domain_name}</span>
           <span class="level-badge current">L${d.maturity_level}</span>
-          ${d.gap === 0 ? `<span class="gap-badge gap-0">✓ On target</span>` : ''}
+          ${d.gap > 0
+            ? `<span class="gap-badge gap-${Math.min(d.gap, 3)}">Gap +${d.gap}</span>`
+            : d.gap === 0
+              ? `<span class="gap-badge gap-0">✓ On target</span>`
+              : ''}
         </div>
         <div style="display:flex;align-items:center;gap:14px;">
           <div class="domain-section-right">
@@ -142,7 +147,7 @@ function renderRadar(domains) {
   const current = domains.map(d => d.maturity_level);
   const targets = domains.map(d => d.target_level);
 
-  new Chart(canvas, {
+  radarChartInstance = new Chart(canvas, {
     type: 'radar',
     data: {
       labels,
@@ -170,6 +175,12 @@ function renderRadar(domains) {
     },
     options: {
       responsive: true,
+      animation: {
+        onComplete: () => {
+          // Mark chart as ready for PDF capture once animation finishes
+          canvas.dataset.ready = 'true';
+        }
+      },
       scales: {
         r: {
           min: 0, max: 5,
@@ -208,6 +219,67 @@ function renderRadar(domains) {
       },
     },
   });
+}
+
+/* ── PDF Download ─────────────────────────────────────────────────────────── */
+async function downloadPDF() {
+  const btn = document.getElementById('download-pdf-btn');
+  if (!btn) return;
+
+  // Show loading state
+  const originalText = btn.innerHTML;
+  btn.innerHTML = `
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="animation:spin 1s linear infinite">
+      <circle cx="6.5" cy="6.5" r="5" stroke="white" stroke-width="1.5" stroke-dasharray="20" stroke-dashoffset="10"/>
+    </svg>
+    Generating PDF...
+  `;
+  btn.disabled = true;
+
+  try {
+    // Capture radar chart as base64 PNG — only after animation completes
+    let radarBase64 = '';
+    const canvas = document.getElementById('radarChart');
+    if (canvas) {
+      if (canvas.dataset.ready !== 'true') {
+        toast('Chart is still loading, please try again in a moment.', 'error');
+        btn.innerHTML = originalText;
+        btn.disabled  = false;
+        return;
+      }
+      radarBase64 = canvas.toDataURL('image/png');
+    }
+
+    // POST to report generation endpoint
+    const response = await fetch(`/api/assessments/${assessmentId}/report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ radar_chart: radarBase64 }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Report generation failed');
+    }
+
+    // Trigger file download from response blob
+    const blob     = await response.blob();
+    const url      = URL.createObjectURL(blob);
+    const a        = document.createElement('a');
+    const orgName  = document.getElementById('org-name').textContent.trim().replace(/\s+/g, '_');
+    a.href         = url;
+    a.download     = `DG_Report_${orgName}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+  } catch (err) {
+    toast(err.message || 'Failed to generate PDF', 'error');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled  = false;
+  }
 }
 
 function showError(msg) {
